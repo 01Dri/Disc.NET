@@ -1,0 +1,13 @@
+﻿using System.ComponentModel;
+
+namespace Disc.NET.Enums
+{
+    internal enum DiscordWebSocketEventType
+    {
+        None,
+        Ready,
+        [Description("MESSAGE_CREATE")]
+        MessageCreate,
+        MessageDelete,
+    }
+}

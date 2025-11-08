@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36511.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericBot", "..\tests\GenericBot\GenericBot.csproj", "{38895EB3-0080-456E-82E0-6AE8D0FCAF2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Disc.NET", "Disc.NET\Disc.NET.csproj", "{3C51A65B-4D7D-65A1-5232-3A874670A009}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38895EB3-0080-456E-82E0-6AE8D0FCAF2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38895EB3-0080-456E-82E0-6AE8D0FCAF2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38895EB3-0080-456E-82E0-6AE8D0FCAF2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38895EB3-0080-456E-82E0-6AE8D0FCAF2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C51A65B-4D7D-65A1-5232-3A874670A009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C51A65B-4D7D-65A1-5232-3A874670A009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C51A65B-4D7D-65A1-5232-3A874670A009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C51A65B-4D7D-65A1-5232-3A874670A009}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9FA06E9-A788-48EC-86AB-32A87282F248}
+	EndGlobalSection
+EndGlobal
