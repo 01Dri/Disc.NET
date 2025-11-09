@@ -19,7 +19,6 @@ namespace Disc.NET.Handlers.EventHandlers.Handlers
                 return;
             }
             Console.WriteLine("MESSAGE DELETED: " + contextJson);
-            // Implement your logic for handling message deletion here
         }
     }
 }

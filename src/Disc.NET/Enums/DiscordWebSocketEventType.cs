@@ -5,6 +5,7 @@ namespace Disc.NET.Enums
     internal enum DiscordWebSocketEventType
     {
         None,
+        [Description("READ")]
         Ready,
         [Description("MESSAGE_CREATE")]
         MessageCreate,

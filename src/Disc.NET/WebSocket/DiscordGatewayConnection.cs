@@ -106,7 +106,7 @@ namespace Disc.NET.WebSocket
                 d = new
                 {
                     token = $"Bot {token}",
-                    intents = options.GatewayIntentsTypes.GetIntIntents(),
+                    intents = options.Intents.GetIntIntents(),
                     properties = new
                     {
                         os = "windows",
