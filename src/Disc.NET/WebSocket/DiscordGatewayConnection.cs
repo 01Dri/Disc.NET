@@ -67,6 +67,7 @@ namespace Disc.NET.WebSocket
             _logger.LogInformation("Identify payload sent.");
 
             // Event loop messages
+            // https://discord.com/developers/docs/events/gateway-events#gateway-events
             _logger.LogInformation("Starting event loop...");
             while (_ws.State == WebSocketState.Open)
             {
