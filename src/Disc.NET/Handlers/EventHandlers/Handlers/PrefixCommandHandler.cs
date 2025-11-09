@@ -2,9 +2,9 @@
 using Disc.NET.Enums;
 using Disc.NET.Requests;
 
-namespace Disc.NET.Handlers.EventHandlers.MessageCreate.Handlers
+namespace Disc.NET.Handlers.EventHandlers.Handlers
 {
-    internal class PrefixCommandHandler : HandlerBase<IMessageCreateHandler>
+    internal class PrefixCommandHandler : HandlerBase, IHandler
     {
         private readonly DiscordMessageRequest _discordMessageRequest;
 
@@ -15,6 +15,11 @@ namespace Disc.NET.Handlers.EventHandlers.MessageCreate.Handlers
 
         public override async Task HandleAsync(DiscordWebSocketEventType eventType, string contextJson, AppOptions options)
         {
+            if (eventType != DiscordWebSocketEventType.MessageCreate)
+            {
+                await base.HandleAsync(eventType, contextJson, options);
+                return;
+            }
             if (string.IsNullOrEmpty(contextJson) || contextJson.Length < 2)
             {
                 await base.HandleAsync(eventType, contextJson, options);

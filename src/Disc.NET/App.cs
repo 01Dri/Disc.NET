@@ -1,5 +1,6 @@
 ﻿using Disc.NET.Configurations;
 using Disc.NET.WebSocket;
+using Microsoft.Extensions.Logging;
 
 namespace Disc.NET
 {
@@ -7,8 +8,15 @@ namespace Disc.NET
     {
         public async Task RunAsync(string token, AppOptions? options = null)
         {
-            var discordWebSocketConnection = new DiscordGatewayConnection();
-            await discordWebSocketConnection.ConnectAsync(token, options ?? new AppOptions());
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(LogLevel.Debug);
+            });
+
+            var logger = loggerFactory.CreateLogger<DiscordGatewayConnection>();
+            var gateway = new DiscordGatewayConnection(logger);
+            await gateway.ConnectAsync(token, options ?? new AppOptions());
         }
     }
 }

@@ -2,27 +2,28 @@
 
 namespace Disc.NET.Handlers;
 
-internal class HandlerFactory<T> where T : IHandler
+internal class HandlerFactory 
 {
-    public static HandlerBase<T> CreateHandlerChain()
+    public static IHandler CreateHandlerChain()
     {
-        var handlerBaseType = typeof(HandlerBase<T>);
-
         var handlerTypes = Assembly.GetExecutingAssembly()
-            .DefinedTypes
-            .Where(t => !t.IsAbstract && handlerBaseType.IsAssignableFrom(t))
-            .ToArray();
+            .GetTypes()
+            .Where(t => typeof(IHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+            .ToList();
 
-        if (handlerTypes.Length == 0) throw new ArgumentException();
+        return CreateChainRecursive(handlerTypes, 0)!;
+    }
 
-        var handlerInstances = new HandlerBase<T>[handlerTypes.Length];
-        for (int i = 0; i < handlerTypes.Length; i++)
-            handlerInstances[i] = (HandlerBase<T>)Activator.CreateInstance(handlerTypes[i])!;
+    private static IHandler? CreateChainRecursive(List<Type> handlerTypes, int index)
+    {
+        if (index >= handlerTypes.Count)
+            return null;
 
-        for (int i = 0; i < handlerInstances.Length - 1; i++)
-            handlerInstances[i].SetNext(handlerInstances[i + 1]);
+        var handlerInstance = (IHandler)Activator.CreateInstance(handlerTypes[index])!;
+        var nextHandler = CreateChainRecursive(handlerTypes, index + 1);
 
-        return handlerInstances[0];
+        handlerInstance.SetNext(nextHandler);
+        return handlerInstance;
     }
 
 }

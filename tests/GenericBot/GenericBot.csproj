@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Disc.NET\Disc.NET.csproj" />
-    <ProjectReference Include="..\..\src\Discord.NET.Core\Disc.NET.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,7 @@ namespace Disc.NET.Enums
         Ready,
         [Description("MESSAGE_CREATE")]
         MessageCreate,
+        [Description("MESSAGE_DELETE")]
         MessageDelete,
     }
 }

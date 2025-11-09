@@ -4,60 +4,38 @@ using Disc.NET.Configurations;
 using Disc.NET.Enums;
 using Disc.NET.Extensions;
 using Disc.NET.Handlers;
+using Microsoft.Extensions.Logging;
 
 namespace Disc.NET.WebSocket
 {
-    /// <summary>
-    /// Manages a persistent WebSocket connection with the Discord Gateway.
-    /// </summary>
-    /// <remarks>
-    /// This class handles all low-level operations required to connect, authenticate,
-    /// maintain heartbeats, and receive events from Discord's real-time gateway.
-    /// 
-    /// <para>
-    /// For more information, see:
-    /// <see href="https://discord.com/developers/docs/topics/gateway">Discord Gateway Documentation</see>.
-    /// </para>
-    /// </remarks>
     internal class DiscordGatewayConnection
     {
         private readonly byte[] _buffer = new byte[4096];
         private volatile int _lastSequenceEventNumber;
         private readonly ClientWebSocket _ws = new();
+        private readonly ILogger<DiscordGatewayConnection> _logger;
 
-        /// <summary>
-        /// Establishes a WebSocket connection with the Discord Gateway and starts the event loop.
-        /// </summary>
-        /// <remarks>
-        /// Performs the following steps:
-        /// <list type="number">
-        /// <item>Connects to the Discord Gateway (<c>wss://gateway.discord.gg/?v=10&encoding=json</c>).</item>
-        /// <item>Receives the initial <c>HELLO</c> payload and extracts the heartbeat interval.</item>
-        /// <item>Starts a background heartbeat task that periodically sends <c>OP 1</c> payloads.</item>
-        /// <item>Sends the Identify payload to authenticate with the provided bot token.</item>
-        /// <item>Begins reading and dispatching incoming Gateway messages.</item>
-        /// </list>
-        /// </remarks>
-        /// <param name="token">The bot token used to authenticate with the Discord Gateway.</param>
-        /// <param name="options">Application configuration options containing gateway intents and other metadata.</param>
-        /// <returns>A task that represents the asynchronous connection operation.</returns>
-        /// <example>
-        /// <code>
-        /// var gateway = new DiscordGatewayConnection();
-        /// await gateway.ConnectAsync("YOUR_TOKEN_HERE", new AppOptions());
-        /// </code>
-        /// </example>
+        public DiscordGatewayConnection(ILogger<DiscordGatewayConnection> logger)
+        {
+            _logger = logger;
+        }
+
         public async Task ConnectAsync(string token, AppOptions options)
         {
+            _logger.LogInformation("Connecting to Discord Gateway...");
+
             await _ws.ConnectAsync(new Uri("wss://gateway.discord.gg/?v=10&encoding=json"), CancellationToken.None);
+            _logger.LogInformation("Connected successfully.");
 
             var helloResult = await _ws.ReceiveAsync(_buffer, CancellationToken.None);
             var helloJson = helloResult.GetJsonDocument(_buffer);
             var heartbeatInterval = helloJson.GetHeartbeatInterval();
+            _logger.LogInformation("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
 
-            // Start background heartbeat task
             _ = Task.Run(async () =>
             {
+                _logger.LogInformation("Heartbeat background task started.");
+
                 while (_ws.State == WebSocketState.Open)
                 {
                     var heartbeatToSend = JsonSerializer.Serialize(new
@@ -66,16 +44,28 @@ namespace Disc.NET.WebSocket
                         d = _lastSequenceEventNumber == 0 ? (int?)null : _lastSequenceEventNumber
                     });
 
-                    await _ws.SendAsync(heartbeatToSend.ToUTF8Bytes(), WebSocketMessageType.Text, true, CancellationToken.None);
-                    Console.WriteLine("Heartbeat sent: " + heartbeatToSend);
+                    try
+                    {
+                        await _ws.SendAsync(heartbeatToSend.ToUTF8Bytes(), WebSocketMessageType.Text, true, CancellationToken.None);
+                        _logger.LogDebug("Heartbeat sent (seq: {Seq})", _lastSequenceEventNumber);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send heartbeat.");
+                    }
 
                     await Task.Delay(heartbeatInterval);
                 }
+
+                _logger.LogWarning("Heartbeat task stopped (WebSocket closed).");
             });
 
+            _logger.LogInformation("Sending Identify payload...");
             await SendIdentifyPayloadAsync(token, options);
+            _logger.LogInformation("Identify payload sent.");
 
             // Event loop
+            _logger.LogInformation("Starting event loop...");
             while (_ws.State == WebSocketState.Open)
             {
                 var message = await ReadMessageAsync();
@@ -84,24 +74,30 @@ namespace Disc.NET.WebSocket
 
                 var eventName = message.GetEventName();
                 if (string.IsNullOrEmpty(eventName))
+                {
+                    _logger.LogDebug("Received message without event name.");
                     continue;
+                }
 
-                // Dispatch event to registered handlers
-                await HandlerExecutor.ExecuteHandlerAsync(eventName.ToDiscordWebSocketEventsType(), "event context data", options);
+                var eventType = eventName.ToDiscordWebSocketEventType();
+                if (eventType == DiscordWebSocketEventType.None)
+                {
+                    _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
+                    continue;
+                }
+
+                if (eventType == DiscordWebSocketEventType.Ready)
+                {
+                    _logger.LogInformation("Bot is connected and ready!");
+                }
+
+                _logger.LogDebug("Dispatching event: {Event}", eventName);
+                await HandlerFactory.CreateHandlerChain().HandleAsync(eventType, "event context", options);
             }
+
+            _logger.LogWarning("Event loop terminated (WebSocket closed).");
         }
 
-        /// <summary>
-        /// Sends the Identify payload to the Discord Gateway, authenticating the client session.
-        /// </summary>
-        /// <param name="token">The bot token.</param>
-        /// <param name="options">Application configuration options, used to include the gateway intents.</param>
-        /// <returns>A task representing the asynchronous send operation.</returns>
-        /// <remarks>
-        /// The Identify payload is required immediately after the initial <c>HELLO</c> event.
-        /// This authenticates the client and tells Discord which events it wishes to receive
-        /// (based on the provided intents).
-        /// </remarks>
         private async Task SendIdentifyPayloadAsync(string token, AppOptions options)
         {
             var identify = JsonSerializer.Serialize(new
@@ -123,39 +119,42 @@ namespace Disc.NET.WebSocket
             await _ws.SendAsync(identify.ToUTF8Bytes(), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
-        /// <summary>
-        /// Reads the next full message from the WebSocket stream and parses it into a <see cref="JsonDocument"/>.
-        /// </summary>
-        /// <remarks>
-        /// This method handles message fragmentation automatically.  
-        /// It also updates the internal sequence number (<c>_lastSequenceEventNumber</c>)
-        /// whenever a message includes a valid <c>s</c> field from Discord.
-        /// </remarks>
-        /// <returns>
-        /// A <see cref="JsonDocument"/> representing the received payload, 
-        /// or <see langword="null"/> if the message is empty.
-        /// </returns>
         private async Task<JsonDocument?> ReadMessageAsync()
         {
             var message = new List<byte>();
             WebSocketReceiveResult result;
 
-            do
+            try
             {
-                result = await _ws.ReceiveAsync(_buffer, CancellationToken.None);
-                message.AddRange(_buffer.Take(result.Count));
-            } while (!result.EndOfMessage);
+                do
+                {
+                    result = await _ws.ReceiveAsync(_buffer, CancellationToken.None);
+                    message.AddRange(_buffer.Take(result.Count));
+                } while (!result.EndOfMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error receiving message.");
+                return null;
+            }
 
             if (message.Count <= 0)
+            {
+                _logger.LogDebug("Received empty message.");
                 return null;
+            }
 
             var text = message.ToArray().ToUTF8String();
-            var json = JsonDocument.Parse(text);
+            _logger.LogTrace("Received raw message: {Message}", text);
 
-            var newLastSequenceEventNumber = json.GetLastSequenceEventNumber();
-            _lastSequenceEventNumber = newLastSequenceEventNumber == 0
-                ? _lastSequenceEventNumber
-                : newLastSequenceEventNumber;
+            var json = JsonDocument.Parse(text);
+            var newSeq = json.GetLastSequenceEventNumber();
+
+            if (newSeq != 0 && newSeq != _lastSequenceEventNumber)
+            {
+                _logger.LogDebug("Sequence updated from {OldSeq} to {NewSeq}", _lastSequenceEventNumber, newSeq);
+                _lastSequenceEventNumber = newSeq;
+            }
 
             return json;
         }

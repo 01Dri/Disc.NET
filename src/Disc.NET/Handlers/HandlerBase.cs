@@ -3,12 +3,11 @@ using Disc.NET.Enums;
 
 namespace Disc.NET.Handlers;
 
-internal abstract class HandlerBase<T> where T : IHandler
+internal abstract class HandlerBase
 {
-    private HandlerBase<T>? _next;
+    private IHandler? _next;
 
-
-    public void SetNext(HandlerBase<T>? next)
+    public void SetNext(IHandler? next)
     {
         _next = next;
     }
