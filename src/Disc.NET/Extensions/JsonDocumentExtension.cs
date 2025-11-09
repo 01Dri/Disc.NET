@@ -19,5 +19,10 @@ namespace Disc.NET.Extensions
         {
             return document.RootElement.GetProperty("t").GetString();
         }
+
+        public static int GetOpCode(this JsonDocument document)
+        {
+            return document.RootElement.GetProperty("op").GetInt32();
+        }
     }
 }

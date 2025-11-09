@@ -1,10 +1,11 @@
-﻿using System.Net.WebSockets;
-using System.Text.Json;
-using Disc.NET.Configurations;
+﻿using Disc.NET.Configurations;
 using Disc.NET.Enums;
 using Disc.NET.Extensions;
 using Disc.NET.Handlers;
 using Microsoft.Extensions.Logging;
+using System.Net.WebSockets;
+using System.Text.Json;
+using System.Threading.Channels;
 
 namespace Disc.NET.WebSocket
 {
@@ -12,7 +13,10 @@ namespace Disc.NET.WebSocket
     {
         private readonly byte[] _buffer = new byte[4096];
         private volatile int _lastSequenceEventNumber;
+        private volatile bool _heartbeatAckReceived = true;
+        private CancellationTokenSource? _heartbeatCts;
         private readonly ClientWebSocket _ws = new();
+        private readonly Channel<JsonDocument> _channel = Channel.CreateUnbounded<JsonDocument>();
         private readonly ILogger<DiscordGatewayConnection> _logger;
 
         public DiscordGatewayConnection(ILogger<DiscordGatewayConnection> logger)
@@ -31,49 +35,40 @@ namespace Disc.NET.WebSocket
             var helloJson = helloResult.GetJsonDocument(_buffer);
             var heartbeatInterval = helloJson.GetHeartbeatInterval();
             _logger.LogInformation("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
-
-
-            // Event loop heartbeat
-            _ = Task.Run(async () =>
-            {
-                _logger.LogInformation("Heartbeat background task started.");
-
-                while (_ws.State == WebSocketState.Open)
-                {
-                    var heartbeatToSend = JsonSerializer.Serialize(new
-                    {
-                        op = DiscordWebSocketOpCodesType.Heartbeat,
-                        d = _lastSequenceEventNumber == 0 ? (int?)null : _lastSequenceEventNumber
-                    });
-
-                    try
-                    {
-                        await _ws.SendAsync(heartbeatToSend.ToUTF8Bytes(), WebSocketMessageType.Text, true, CancellationToken.None);
-                        _logger.LogDebug("Heartbeat sent (seq: {Seq})", _lastSequenceEventNumber);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to send heartbeat.");
-                    }
-
-                    await Task.Delay(heartbeatInterval);
-                }
-
-                _logger.LogWarning("Heartbeat task stopped (WebSocket closed).");
-            });
+            StartHeartbeatLoop(heartbeatInterval);
 
             _logger.LogInformation("Sending Identify payload...");
             await SendIdentifyPayloadAsync(token, options);
             _logger.LogInformation("Identify payload sent.");
 
-            // Event loop messages
-            _logger.LogInformation("Starting event loop...");
-            while (_ws.State == WebSocketState.Open)
-            {
-                var message = await ReadMessageAsync();
-                if (message == null)
-                    continue;
 
+            // Event loop to write messages
+            _ = Task.Run(async () =>
+            {
+                while (_ws.State == WebSocketState.Open)
+                {
+                    var message = await ReadMessageAsync();
+                    if (message != null)
+                        await _channel.Writer.WriteAsync(message);
+                }
+                _channel.Writer.Complete();
+            });
+
+            // Event loop to read and handle
+            await foreach (var message in _channel.Reader.ReadAllAsync())
+            {
+                var opCode = (DiscordWebSocketOpCodesType) message.GetOpCode();
+                if (!Enum.IsDefined(typeof(DiscordWebSocketOpCodesType), opCode))
+                {
+                    _logger.LogDebug("Received message without op code.");
+                    continue;
+                }
+                if (opCode == DiscordWebSocketOpCodesType.HeartbeatAck)
+                {
+                    _logger.LogDebug("Received Heartbeat ACK.");
+                    _heartbeatAckReceived = true;
+                    continue;
+                }
                 var eventName = message.GetEventName();
                 if (string.IsNullOrEmpty(eventName))
                 {
@@ -82,7 +77,7 @@ namespace Disc.NET.WebSocket
                 }
 
                 var eventType = eventName.ToDiscordWebSocketEventType();
-                if (eventType == DiscordWebSocketEventType.None)
+                if (eventType == DiscordWebSocketEventType.MessageDelete)
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
@@ -93,12 +88,69 @@ namespace Disc.NET.WebSocket
                     _logger.LogInformation("Bot is connected and ready!");
                 }
 
+
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
-                await HandlerFactory.CreateHandlerChain().HandleAsync(eventType, "!helloword", options);
+                await HandlerFactory.CreateHandlerChain().HandleAsync(eventType, "teste", options);
             }
 
-            _logger.LogWarning("Event loop terminated (WebSocket closed).");
         }
+        private void StartHeartbeatLoop(int heartbeatInterval)
+        {
+            _heartbeatCts = new CancellationTokenSource();
+
+            _ = Task.Run(async () =>
+            {
+                _logger.LogInformation("Heartbeat background task started.");
+
+                while (!_heartbeatCts.Token.IsCancellationRequested && _ws.State == WebSocketState.Open)
+                {
+                    if (!_heartbeatAckReceived)
+                    {
+                        _logger.LogWarning("Missed heartbeat ACK! Reconnecting...");
+
+                        // Reconnection logic
+                        return;
+                    }
+
+                    _heartbeatAckReceived = false;
+
+                    var heartbeatPayload = JsonSerializer.Serialize(new
+                    {
+                        op = DiscordWebSocketOpCodesType.Heartbeat,
+                        d = _lastSequenceEventNumber == 0 ? (int?)null : _lastSequenceEventNumber
+                    });
+
+                    try
+                    {
+                        await _ws.SendAsync(
+                            heartbeatPayload.ToUTF8Bytes(),
+                            WebSocketMessageType.Text,
+                            true,
+                            _heartbeatCts.Token
+                        );
+
+                        _logger.LogDebug("Heartbeat sent (seq: {Seq})", _lastSequenceEventNumber);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send heartbeat.");
+                        break;
+                    }
+
+                    try
+                    {
+                        await Task.Delay(heartbeatInterval, _heartbeatCts.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        break;
+                    }
+                }
+
+                _logger.LogWarning("Heartbeat task stopped.");
+            }, _heartbeatCts.Token);
+        }
+
         // https://discord.com/developers/docs/events/gateway-events#identify
         private async Task SendIdentifyPayloadAsync(string token, AppOptions options)
         {
