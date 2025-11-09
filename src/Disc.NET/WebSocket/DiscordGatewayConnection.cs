@@ -94,7 +94,7 @@ namespace Disc.NET.WebSocket
                 }
 
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
-                await HandlerFactory.CreateHandlerChain().HandleAsync(eventType, "event context", options);
+                await HandlerFactory.CreateHandlerChain().HandleAsync(eventType, "!helloword", options);
             }
 
             _logger.LogWarning("Event loop terminated (WebSocket closed).");

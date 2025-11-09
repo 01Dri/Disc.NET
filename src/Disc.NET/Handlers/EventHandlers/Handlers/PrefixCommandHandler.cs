@@ -1,4 +1,7 @@
-﻿using Disc.NET.Configurations;
+﻿using System.Reflection;
+using Disc.NET.Attributes.Commands;
+using Disc.NET.Commands;
+using Disc.NET.Configurations;
 using Disc.NET.Enums;
 
 namespace Disc.NET.Handlers.EventHandlers.Handlers
@@ -17,7 +20,23 @@ namespace Disc.NET.Handlers.EventHandlers.Handlers
                 await base.HandleAsync(eventType, contextJson, options);
                 return;
             }
-            Console.WriteLine("PREFIX COMMAND: ");
+
+            if (contextJson[0] != options.BotPrefix)
+            {
+                await base.HandleAsync(eventType, contextJson, options);
+                return;
+            }
+            var commandName = contextJson[1..].Split(' ')[0].Trim().ToLowerInvariant();
+
+            IDiscordCommand? command = GetCommandByAttribute<PrefixCommandAttribute>(commandName);
+
+            if (command == null)
+            {
+                await base.HandleAsync(eventType, contextJson, options);
+                return;
+            }
+
+            await command.RunAsync();
         }
 
     }
