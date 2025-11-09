@@ -19,7 +19,7 @@ namespace Disc.NET.WebSocket
         {
             _logger = logger;
         }
-
+        // https://discord.com/developers/docs/topics/gateway#connecting-gateway
         public async Task ConnectAsync(string token, AppOptions options)
         {
             _logger.LogInformation("Connecting to Discord Gateway...");
@@ -32,6 +32,8 @@ namespace Disc.NET.WebSocket
             var heartbeatInterval = helloJson.GetHeartbeatInterval();
             _logger.LogInformation("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
 
+
+            // Event loop heartbeat
             _ = Task.Run(async () =>
             {
                 _logger.LogInformation("Heartbeat background task started.");
@@ -64,7 +66,7 @@ namespace Disc.NET.WebSocket
             await SendIdentifyPayloadAsync(token, options);
             _logger.LogInformation("Identify payload sent.");
 
-            // Event loop
+            // Event loop messages
             _logger.LogInformation("Starting event loop...");
             while (_ws.State == WebSocketState.Open)
             {
@@ -97,7 +99,7 @@ namespace Disc.NET.WebSocket
 
             _logger.LogWarning("Event loop terminated (WebSocket closed).");
         }
-
+        // https://discord.com/developers/docs/events/gateway-events#identify
         private async Task SendIdentifyPayloadAsync(string token, AppOptions options)
         {
             var identify = JsonSerializer.Serialize(new
