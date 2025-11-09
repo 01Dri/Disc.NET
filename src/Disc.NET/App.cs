@@ -1,5 +1,5 @@
 ﻿using Disc.NET.Configurations;
-using Disc.NET.WebSocket;
+using Disc.NET.Gateway;
 using Microsoft.Extensions.Logging;
 
 namespace Disc.NET
