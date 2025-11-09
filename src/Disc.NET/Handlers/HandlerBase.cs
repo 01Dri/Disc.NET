@@ -1,11 +1,12 @@
-﻿using Disc.NET.Configurations;
+﻿using System.Text.Json;
+using Disc.NET.Configurations;
 using Disc.NET.Enums;
 
 namespace Disc.NET.Handlers;
 
 internal abstract class HandlerBase
 {
-    private IHandler? _next;
+    protected IHandler? _next;
 
     public void SetNext(IHandler? next)
     {
@@ -18,5 +19,6 @@ internal abstract class HandlerBase
             await _next.HandleAsync(eventType, contextJson, options);
         }
     }
+
 }
 
