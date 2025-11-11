@@ -5,15 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Disc.NET.Attributes.Commands;
 using Disc.NET.Commands;
+using Disc.NET.Models.Commands;
 
 namespace GenericBot
 {
     [PrefixCommand("helloword")]
-    public class PrefixCommandTest : IDiscordCommand
+    public class PrefixCommandTest : ICommand<CommandContext>
     {
-        public async Task<bool> RunAsync()
+        public async Task<bool> RunAsync(CommandContext context)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Command by " + context.Author?.Username);
+            Console.WriteLine("Channel " + context.Channel?.Id);
+            Console.WriteLine("Content" + context.Message?.Content);
+
             return true;
         }
     }

@@ -5,10 +5,10 @@ namespace Disc.NET.Configurations
     public class AppOptions
     {
         public char BotPrefix { get; init;  }
-        public List<DiscordGatewayIntentsType> Intents { get; init; } = new()
+        public List<GatewayIntent> Intents { get; init; } = new()
         {
-            DiscordGatewayIntentsType.GUILD_MESSAGES,
-            DiscordGatewayIntentsType.DIRECT_MESSAGES
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.DIRECT_MESSAGES
         };
         public AppOptions(char botPrefix = '!')
         {

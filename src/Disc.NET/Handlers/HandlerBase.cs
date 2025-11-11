@@ -1,11 +1,14 @@
-﻿using System.Reflection;
-using Disc.NET.Commands;
+﻿using Disc.NET.Commands;
 using Disc.NET.Configurations;
 using Disc.NET.Enums;
+using System.Reflection;
+using System.Text.Json;
+using Disc.NET.Models;
+using Disc.NET.Models.Commands;
 
 namespace Disc.NET.Handlers;
 
-internal abstract class HandlerBase
+internal abstract class HandlerBase<TContext> where TContext : IContext
 {
     private IHandler? _next;
 
@@ -13,16 +16,17 @@ internal abstract class HandlerBase
     {
         _next = next;
     }
-    public virtual async Task HandleAsync(DiscordWebSocketEventType eventType, string contextJson, AppOptions options)
+    public virtual async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson, AppOptions options)
     {
         if (_next != null)
         {
-            await _next.HandleAsync(eventType, contextJson, options);
+            await _next.HandleAsync(@event, contextJson, options);
         }
     }
 
-    protected IDiscordCommand? GetCommandByAttribute<T>(string commandName)
-        where T : Attribute
+
+    protected ICommand<TK>? GetCommandByAttribute<T, TK>(string commandName)
+        where T : Attribute where TK : IContext
     {
         var assembly = Assembly.GetEntryAssembly();
         if (assembly == null)
@@ -34,7 +38,7 @@ internal abstract class HandlerBase
 
         var commandType = assembly
             .GetTypes()
-            .Where(t => typeof(IDiscordCommand).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
+            .Where(t => typeof(ICommand<TK>).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
             .FirstOrDefault(t =>
             {
                 var attr = t.GetCustomAttribute<T>();
@@ -48,9 +52,9 @@ internal abstract class HandlerBase
         if (commandType == null)
             return null;
 
-        return (IDiscordCommand)Activator.CreateInstance(commandType)!;
+        return (ICommand<TK>)Activator.CreateInstance(commandType)!;
     }
 
-
+    protected abstract TContext BuildContext(JsonDocument contextJson);
 }
 

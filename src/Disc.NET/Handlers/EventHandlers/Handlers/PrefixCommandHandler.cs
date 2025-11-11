@@ -1,42 +1,66 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using Disc.NET.Attributes.Commands;
 using Disc.NET.Commands;
 using Disc.NET.Configurations;
 using Disc.NET.Enums;
+using Disc.NET.Extensions;
+using Disc.NET.Models;
+using Disc.NET.Models.Commands;
 
 namespace Disc.NET.Handlers.EventHandlers.Handlers
 {
-    internal class PrefixCommandHandler : HandlerBase, IHandler
+    internal class PrefixCommandHandler : HandlerBase<CommandContext>, IHandler
     {
 
         public PrefixCommandHandler()
         {
         }
 
-        public override async Task HandleAsync(DiscordWebSocketEventType eventType, string contextJson, AppOptions options)
-        {
-            if (eventType != DiscordWebSocketEventType.MessageCreate)
+        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson, AppOptions options)
+        { 
+            if (@event != GatewayEvent.MessageCreate)
             {
-                await base.HandleAsync(eventType, contextJson, options);
+                await base.HandleAsync(@event, contextJson, options);
                 return;
             }
 
-            if (contextJson[0] != options.BotPrefix)
+            var content = contextJson.GetContent();
+
+            if (content[0] != options.BotPrefix)
             {
-                await base.HandleAsync(eventType, contextJson, options);
+                await base.HandleAsync(@event, contextJson, options);
                 return;
             }
-            var commandName = contextJson[1..].Split(' ')[0].Trim().ToLowerInvariant();
+            var commandName = content[1..].Split(' ')[0].Trim().ToLowerInvariant();
 
-            IDiscordCommand? command = GetCommandByAttribute<PrefixCommandAttribute>(commandName);
+            ICommand<CommandContext>? command = GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandName);
 
             if (command == null)
             {
-                await base.HandleAsync(eventType, contextJson, options);
+                await base.HandleAsync(@event, contextJson, options);
                 return;
             }
 
-            await command.RunAsync();
+            var context = BuildContext(contextJson);
+            await command.RunAsync(context);
+        }
+
+
+        protected override CommandContext BuildContext(JsonDocument contextJson)
+        {
+            CommandContext context = new CommandContext();
+            var authorProperty = contextJson.GetAuthor();
+            context.Author = JsonSerializer.Deserialize<Author>(authorProperty);
+            context.Channel = new Channel()
+            {
+                Id = contextJson.GetChannelId()
+            };
+            context.Message = new Message()
+            {
+                Content = contextJson.GetContent()
+            };
+            return context;
         }
 
     }

@@ -20,7 +20,7 @@ namespace Disc.NET.Gateway
     /// - Managing the heartbeat loop and acknowledging heartbeats.
     /// - Dispatching received events to their appropriate handlers.
     /// </remarks>
-    internal class DiscordGatewayConnection
+    internal class GatewayConnection
     {
         private readonly byte[] _buffer = new byte[4096];
         private volatile int _lastSequenceEventNumber;
@@ -28,13 +28,13 @@ namespace Disc.NET.Gateway
         private CancellationTokenSource? _heartbeatCts;
         private readonly ClientWebSocket _ws = new();
         private readonly Channel<JsonDocument> _channel = Channel.CreateUnbounded<JsonDocument>();
-        private readonly ILogger<DiscordGatewayConnection> _logger;
+        private readonly ILogger<GatewayConnection> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DiscordGatewayConnection"/> class.
+        /// Initializes a new instance of the <see cref="GatewayConnection"/> class.
         /// </summary>
         /// <param name="logger">Logger instance used for structured logging and diagnostics.</param>
-        public DiscordGatewayConnection(ILogger<DiscordGatewayConnection> logger)
+        public GatewayConnection(ILogger<GatewayConnection> logger)
         {
             _logger = logger;
         }
@@ -88,14 +88,14 @@ namespace Disc.NET.Gateway
             // Consumer: Reads messages from the channel and dispatches them
             await foreach (var message in _channel.Reader.ReadAllAsync())
             {
-                var opCode = (DiscordWebSocketOpCodesType)message.GetOpCode();
-                if (!Enum.IsDefined(typeof(DiscordWebSocketOpCodesType), opCode))
+                var opCode = (GatewayOpCode)message.GetOpCode();
+                if (!Enum.IsDefined(typeof(GatewayOpCode), opCode))
                 {
                     _logger.LogDebug("Received message without op code.");
                     continue;
                 }
 
-                if (opCode == DiscordWebSocketOpCodesType.HeartbeatAck)
+                if (opCode == GatewayOpCode.HeartbeatAck)
                 {
                     _logger.LogDebug("Received Heartbeat ACK.");
                     _heartbeatAckReceived = true;
@@ -110,20 +110,22 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventType = eventName.ToDiscordWebSocketEventType();
-                if (eventType == DiscordWebSocketEventType.MessageDelete)
+                if (eventType == GatewayEvent.MessageDelete)
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
                 }
 
-                if (eventType == DiscordWebSocketEventType.Ready)
+                if (eventType == GatewayEvent.Ready)
                 {
                     _logger.LogInformation("Bot is connected and ready!");
                 }
 
+                var eventContextData = message.GetEventContextData();
+
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
                 await HandlerFactory.CreateHandlerChain()
-                    .HandleAsync(eventType, "teste", options)
+                    .HandleAsync(eventType, eventContextData, options)
                     .ConfigureAwait(false);
             }
         }
@@ -157,7 +159,7 @@ namespace Disc.NET.Gateway
 
                     var heartbeatPayload = JsonSerializer.Serialize(new
                     {
-                        op = DiscordWebSocketOpCodesType.Heartbeat,
+                        op = GatewayOpCode.Heartbeat,
                         d = _lastSequenceEventNumber == 0 ? (int?)null : _lastSequenceEventNumber
                     });
 
@@ -204,7 +206,7 @@ namespace Disc.NET.Gateway
         {
             var identify = JsonSerializer.Serialize(new
             {
-                op = DiscordWebSocketOpCodesType.Identify,
+                op = GatewayOpCode.Identify,
                 d = new
                 {
                     token = $"Bot {token}",

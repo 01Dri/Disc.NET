@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Disc.NET.Models;
 
 namespace Disc.NET.Extensions
 {
@@ -24,5 +25,27 @@ namespace Disc.NET.Extensions
         {
             return document.RootElement.GetProperty("op").GetInt32();
         }
+
+        public static JsonDocument GetEventContextData(this JsonDocument document)
+        {
+            var property = document.RootElement.GetProperty("d");
+            return JsonDocument.Parse(JsonSerializer.Serialize(property));
+        }
+
+        public static string GetAuthor(this JsonDocument document)
+        {
+            return JsonSerializer.Serialize(document.RootElement.GetProperty("author"));
+        }
+
+        public static string GetContent(this JsonDocument document)
+        {
+            return document.RootElement.GetProperty("content").GetString() ?? string.Empty;
+        }
+
+        public static string GetChannelId(this JsonDocument document)
+        {
+            return document.RootElement.GetProperty("channel_id").GetString() ?? string.Empty;
+        }
+
     }
 }

@@ -14,8 +14,8 @@ namespace Disc.NET
                 builder.SetMinimumLevel(LogLevel.Debug);
             });
 
-            var logger = loggerFactory.CreateLogger<DiscordGatewayConnection>();
-            var gateway = new DiscordGatewayConnection(logger);
+            var logger = loggerFactory.CreateLogger<GatewayConnection>();
+            var gateway = new GatewayConnection(logger);
             await gateway.ConnectAsync(token, options ?? new AppOptions());
         }
     }

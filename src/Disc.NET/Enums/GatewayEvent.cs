@@ -2,7 +2,7 @@
 
 namespace Disc.NET.Enums
 {
-    internal enum DiscordWebSocketEventType
+    internal enum GatewayEvent
     {
         None,
         [Description("READ")]

@@ -18,38 +18,38 @@ namespace Disc.NET.Extensions
             return value.ToString();
         }
 
-        public static DiscordWebSocketEventType ToDiscordWebSocketEventType(this string eventStr)
+        public static GatewayEvent ToDiscordWebSocketEventType(this string eventStr)
         {
             if (string.IsNullOrWhiteSpace(eventStr))
-                return DiscordWebSocketEventType.None;
+                return GatewayEvent.None;
 
             var normalized = eventStr.Trim();
 
-            if (Enum.TryParse(typeof(DiscordWebSocketEventType), normalized, ignoreCase: true, out var directMatch))
-                return (DiscordWebSocketEventType)directMatch;
+            if (Enum.TryParse(typeof(GatewayEvent), normalized, ignoreCase: true, out var directMatch))
+                return (GatewayEvent)directMatch;
 
-            foreach (var field in typeof(DiscordWebSocketEventType).GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (var field in typeof(GatewayEvent).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 var attr = field.GetCustomAttribute<DescriptionAttribute>();
                 if (attr != null && string.Equals(attr.Description, normalized, StringComparison.OrdinalIgnoreCase))
-                    return (DiscordWebSocketEventType)field.GetValue(null)!;
+                    return (GatewayEvent)field.GetValue(null)!;
             }
 
-            return DiscordWebSocketEventType.None;
+            return GatewayEvent.None;
         }
 
-        public static int  GetIntIntents(this IEnumerable<DiscordGatewayIntentsType> intents)
+        public static int  GetIntIntents(this IEnumerable<GatewayIntent> intents)
         {
-            DiscordGatewayIntentsType combined = 0;
+            GatewayIntent combined = 0;
             foreach (var intent in intents)
                 combined |= intent; 
 
             return (int)combined;
         }
 
-        public static int GetIntIntent(DiscordGatewayIntentsType intentsType)
+        public static int GetIntIntent(GatewayIntent intent)
         {
-            return (int)intentsType;
+            return (int)intent;
         }
 
     }

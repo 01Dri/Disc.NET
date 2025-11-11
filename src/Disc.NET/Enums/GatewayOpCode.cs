@@ -1,6 +1,6 @@
 ﻿namespace Disc.NET.Enums
 {
-    internal enum DiscordWebSocketOpCodesType
+    internal enum GatewayOpCode
     {
         Dispatch = 0,
         Heartbeat = 1,

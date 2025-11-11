@@ -13,7 +13,7 @@ internal class HandlerFactory
 
         return CreateChainRecursive(handlerTypes, 0)!;
     }
-
+        
     private static IHandler? CreateChainRecursive(List<Type> handlerTypes, int index)
     {
         if (index >= handlerTypes.Count)
