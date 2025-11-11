@@ -49,10 +49,7 @@ internal abstract class HandlerBase<TContext> where TContext : IContext
                        nameValue.Equals(commandName, StringComparison.OrdinalIgnoreCase);
             });
 
-        if (commandType == null)
-            return null;
-
-        return (ICommand<TK>)Activator.CreateInstance(commandType)!;
+        return commandType != null ? (ICommand<TK>)Activator.CreateInstance(commandType)! : null;
     }
 
     protected abstract TContext BuildContext(JsonDocument contextJson);
