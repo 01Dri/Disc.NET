@@ -109,7 +109,7 @@ namespace Disc.NET.Gateway
                     continue;
                 }
 
-                var eventType = eventName.ToDiscordWebSocketEventType();
+                var eventType = eventName.ToGatewayEventType();
                 if (eventType == GatewayEvent.MessageDelete)
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);

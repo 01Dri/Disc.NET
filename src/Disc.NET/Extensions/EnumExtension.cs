@@ -18,7 +18,7 @@ namespace Disc.NET.Extensions
             return value.ToString();
         }
 
-        public static GatewayEvent ToDiscordWebSocketEventType(this string eventStr)
+        public static GatewayEvent ToGatewayEventType(this string eventStr)
         {
             if (string.IsNullOrWhiteSpace(eventStr))
                 return GatewayEvent.None;
