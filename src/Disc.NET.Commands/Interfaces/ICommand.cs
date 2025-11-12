@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Disc.NET.Models;
-using Disc.NET.Models.Commands;
+using Disc.NET.Commands.Contexts;
 
-namespace Disc.NET.Commands
+namespace Disc.NET.Commands.Interfaces
 {
     public interface ICommand<T> where T : IContext
     {

@@ -3,8 +3,8 @@ using Disc.NET.Configurations;
 using Disc.NET.Enums;
 using System.Reflection;
 using System.Text.Json;
-using Disc.NET.Models;
-using Disc.NET.Models.Commands;
+using Disc.NET.Commands.Contexts;
+using Disc.NET.Commands.Interfaces;
 
 namespace Disc.NET.Handlers;
 

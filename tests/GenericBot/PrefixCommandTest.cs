@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Disc.NET.Attributes.Commands;
 using Disc.NET.Commands;
-using Disc.NET.Models.Commands;
+using Disc.NET.Commands.Attributes;
+using Disc.NET.Commands.Contexts;
+using Disc.NET.Commands.Interfaces;
 
 namespace GenericBot
 {

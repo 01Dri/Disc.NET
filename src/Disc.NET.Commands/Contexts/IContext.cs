@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Disc.NET.Models
+namespace Disc.NET.Commands.Contexts
 {
     public interface IContext
     {

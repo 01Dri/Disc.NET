@@ -1,14 +1,15 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using Disc.NET.Attributes.Commands;
 using Disc.NET.Commands;
+using Disc.NET.Commands.Attributes;
+using Disc.NET.Commands.Contexts;
+using Disc.NET.Commands.Contexts.Models;
+using Disc.NET.Commands.Interfaces;
 using Disc.NET.Configurations;
 using Disc.NET.Enums;
 using Disc.NET.Extensions;
-using Disc.NET.Models;
-using Disc.NET.Models.Commands;
 
-namespace Disc.NET.Handlers.EventHandlers.Handlers
+namespace Disc.NET.Handlers.EventHandlers
 {
     internal class PrefixCommandHandler : HandlerBase<CommandContext>, IHandler
     {

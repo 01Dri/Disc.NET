@@ -64,13 +64,13 @@ namespace Disc.NET.Gateway
             var helloResult = await _ws.ReceiveAsync(_buffer, CancellationToken.None).ConfigureAwait(false);
             var helloJson = helloResult.GetJsonDocument(_buffer);
             var heartbeatInterval = helloJson.GetHeartbeatInterval();
-            _logger.LogInformation("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
+            _logger.LogDebug("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
             StartHeartbeatLoop(heartbeatInterval);
 
             // Identify and authenticate
-            _logger.LogInformation("Sending Identify payload...");
+            _logger.LogDebug("Sending Identify payload...");
             await SendIdentifyPayloadAsync(token, options).ConfigureAwait(false);
-            _logger.LogInformation("Identify payload sent.");
+            _logger.LogDebug("Identify payload sent.");
 
             // Producer: Reads WebSocket messages and writes them to a channel
             _ = Task.Run(async () =>
@@ -144,7 +144,7 @@ namespace Disc.NET.Gateway
 
             _ = Task.Run(async () =>
             {
-                _logger.LogInformation("Heartbeat background task started.");
+                _logger.LogDebug("Heartbeat background task started.");
 
                 while (!_heartbeatCts.Token.IsCancellationRequested && _ws.State == WebSocketState.Open)
                 {

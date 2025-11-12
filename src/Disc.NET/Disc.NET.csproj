@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Disc.NET.Commands\Disc.NET.Commands.csproj" />
+  </ItemGroup>
+
 </Project>

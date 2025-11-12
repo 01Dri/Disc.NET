@@ -10,7 +10,7 @@ using Disc.NET.Configurations;
 using Disc.NET.Enums;
 
 
-App app = new App();
+App app = new App().WithDebugLogger();
 var options = new AppOptions()
 {
     Intents = [GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES]

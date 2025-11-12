@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Disc.NET.Models;
 
 namespace Disc.NET.Extensions
 {
