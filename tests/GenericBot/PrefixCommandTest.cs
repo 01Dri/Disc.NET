@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Commands.Interfaces;
 
 namespace GenericBot
 {

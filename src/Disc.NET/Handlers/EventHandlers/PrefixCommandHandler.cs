@@ -4,7 +4,6 @@ using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
-using Disc.NET.Commands.Interfaces;
 using Disc.NET.Configurations;
 using Disc.NET.Enums;
 using Disc.NET.Extensions;

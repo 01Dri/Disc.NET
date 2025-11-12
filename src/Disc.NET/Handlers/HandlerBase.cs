@@ -4,7 +4,6 @@ using Disc.NET.Enums;
 using System.Reflection;
 using System.Text.Json;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Commands.Interfaces;
 
 namespace Disc.NET.Handlers;
 

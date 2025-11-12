@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Disc.NET.Commands.Contexts;
 
-namespace Disc.NET.Commands.Interfaces
+namespace Disc.NET.Commands
 {
     public interface ICommand<T> where T : IContext
     {
