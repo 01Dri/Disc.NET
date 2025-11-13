@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Disc.NET", "Disc.NET\Disc.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Disc.NET.Commands", "Disc.NET.Commands\Disc.NET.Commands.csproj", "{9774F3ED-88D7-46E5-8534-02CF61A5E5CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Disc.NET.Tests", "..\tests\Disc.NET.Tests\Disc.NET.Tests.csproj", "{4D146177-34B5-47F5-8518-FEBA39A800FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{9774F3ED-88D7-46E5-8534-02CF61A5E5CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9774F3ED-88D7-46E5-8534-02CF61A5E5CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9774F3ED-88D7-46E5-8534-02CF61A5E5CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D146177-34B5-47F5-8518-FEBA39A800FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D146177-34B5-47F5-8518-FEBA39A800FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D146177-34B5-47F5-8518-FEBA39A800FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D146177-34B5-47F5-8518-FEBA39A800FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
