@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Disc.NET.Extensions
+namespace Disc.NET.Shared.Extensions
 {
     internal static class StringExtension
     {

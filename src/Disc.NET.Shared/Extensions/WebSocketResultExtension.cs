@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace Disc.NET.Extensions
+namespace Disc.NET.Shared.Extensions
 {
     internal static class WebSocketResultExtension
     {

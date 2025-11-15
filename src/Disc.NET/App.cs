@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using Disc.NET.Configurations;
 using Disc.NET.Gateway;
+using Disc.NET.Shared.Configurations;
 using Microsoft.Extensions.Logging;
 
 namespace Disc.NET
@@ -14,10 +14,10 @@ namespace Disc.NET
             _logger = CreateLogger(LogLevel.Information);
         }
 
-        public async Task RunAsync(string token, AppOptions? options = null)
+        public async Task RunAsync(AppConfiguration configuration)
         {
             var gateway = new GatewayConnection(_logger);
-            await gateway.ConnectAsync(token, options ?? new AppOptions());
+            await gateway.ConnectAsync(configuration);
         }
 
         public App WithDebugLogger()

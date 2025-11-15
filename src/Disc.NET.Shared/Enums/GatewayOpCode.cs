@@ -1,4 +1,4 @@
-﻿namespace Disc.NET.Enums
+﻿namespace Disc.NET.Shared.Enums
 {
     internal enum GatewayOpCode
     {

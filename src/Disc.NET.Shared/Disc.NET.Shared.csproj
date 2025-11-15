@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Disc.NET.HttpClient\Disc.NET.Client.SDK.csproj" />
-    <ProjectReference Include="..\Disc.NET.HttpClient\Disc.NET.Rest.csproj" />
-  </ItemGroup>
-
 </Project>

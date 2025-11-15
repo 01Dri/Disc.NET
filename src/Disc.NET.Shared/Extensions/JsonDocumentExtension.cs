@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Disc.NET.Extensions
+namespace Disc.NET.Shared.Extensions
 {
     internal static class JsonDocumentExtension
     {
@@ -44,6 +44,11 @@ namespace Disc.NET.Extensions
         public static string GetChannelId(this JsonDocument document)
         {
             return document.RootElement.GetProperty("channel_id").GetString() ?? string.Empty;
+        }
+
+        public static string GetId(this JsonDocument document)
+        {
+            return document.RootElement.GetProperty("id").GetString() ?? string.Empty;
         }
 
     }

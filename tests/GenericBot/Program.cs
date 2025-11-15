@@ -6,13 +6,13 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Disc.NET;
-using Disc.NET.Configurations;
-using Disc.NET.Enums;
+using Disc.NET.Shared.Configurations;
+using Disc.NET.Shared.Enums;
 
 
 App app = new App().WithDebugLogger();
-var options = new AppOptions()
+var appConfiguration = new AppConfiguration("MTQzNjE3ODQ0ODkwMDE2MTYyMA.Gevo76.nqkBj12AGeZI-3BmCSLa6oz1_ETbvpb9tiXCFA")
 {
     Intents = [GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES]
 };
-await app.RunAsync("MTQzNjE3ODQ0ODkwMDE2MTYyMA.Gevo76.nqkBj12AGeZI-3BmCSLa6oz1_ETbvpb9tiXCFA", options);
+await app.RunAsync(appConfiguration);

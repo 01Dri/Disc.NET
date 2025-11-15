@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using Disc.NET.Enums;
+using Disc.NET.Shared.Enums;
 
-namespace Disc.NET.Extensions
+namespace Disc.NET.Shared.Extensions
 {
     internal static class EnumExtension
     {

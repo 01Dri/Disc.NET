@@ -1,10 +1,10 @@
 ﻿using System.Net.WebSockets;
 using System.Text.Json;
 using System.Threading.Channels;
-using Disc.NET.Configurations;
-using Disc.NET.Enums;
-using Disc.NET.Extensions;
 using Disc.NET.Handlers;
+using Disc.NET.Shared.Configurations;
+using Disc.NET.Shared.Enums;
+using Disc.NET.Shared.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Disc.NET.Gateway
@@ -43,7 +43,7 @@ namespace Disc.NET.Gateway
         /// Establishes a connection to the Discord Gateway and starts the event handling loop.
         /// </summary>
         /// <param name="token">The bot token used for authentication.</param>
-        /// <param name="options">Application options including intents and configuration details.</param>
+        /// <param name="configuration">Application configuration including intents and configuration details.</param>
         /// <remarks>
         /// This method:
         /// <list type="bullet">
@@ -53,7 +53,7 @@ namespace Disc.NET.Gateway
         /// <item>Starts concurrent loops for reading WebSocket messages and handling them asynchronously.</item>
         /// </list>
         /// </remarks>
-        public async Task ConnectAsync(string token, AppOptions options)
+        public async Task ConnectAsync(AppConfiguration configuration)
         {
             _logger.LogInformation("Connecting to Discord Gateway...");
 
@@ -69,7 +69,7 @@ namespace Disc.NET.Gateway
 
             // Identify and authenticate
             _logger.LogDebug("Sending Identify payload...");
-            await SendIdentifyPayloadAsync(token, options).ConfigureAwait(false);
+            await SendIdentifyPayloadAsync(configuration.Token, configuration).ConfigureAwait(false);
             _logger.LogDebug("Identify payload sent.");
 
             // Producer: Reads WebSocket messages and writes them to a channel
@@ -110,7 +110,7 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventType = eventName.ToGatewayEventType();
-                if (eventType == GatewayEvent.MessageDelete)
+                if (!Enum.IsDefined(eventType))
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
@@ -122,10 +122,10 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventContextData = message.GetEventContextData();
-
+                Console.WriteLine(JsonSerializer.Serialize(message));
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
-                await HandlerFactory.CreateHandlerChain()
-                    .HandleAsync(eventType, eventContextData, options)
+                await HandlerFactory.CreateHandlerChain(configuration)
+                    .HandleAsync(eventType, eventContextData, configuration)
                     .ConfigureAwait(false);
             }
         }
@@ -198,11 +198,11 @@ namespace Disc.NET.Gateway
         /// Sends the Identify payload to the Discord Gateway to authenticate the bot session.
         /// </summary>
         /// <param name="token">The bot authentication token.</param>
-        /// <param name="options">The application configuration options, including intents.</param>
+        /// <param name="configuration">The application configuration configuration, including intents.</param>
         /// <remarks>
         /// The Identify payload includes OS, device, and browser properties as required by the Discord API.
         /// </remarks>
-        private async Task SendIdentifyPayloadAsync(string token, AppOptions options)
+        private async Task SendIdentifyPayloadAsync(string token, AppConfiguration configuration)
         {
             var identify = JsonSerializer.Serialize(new
             {
@@ -210,7 +210,7 @@ namespace Disc.NET.Gateway
                 d = new
                 {
                     token = $"Bot {token}",
-                    intents = options.Intents.GetIntIntents(),
+                    intents = configuration.Intents.GetIntIntents(),
                     properties = new
                     {
                         os = "windows",
@@ -262,7 +262,7 @@ namespace Disc.NET.Gateway
             }
 
             var text = message.ToArray().ToUTF8String();
-            _logger.LogTrace("Received raw message: {Message}", text);
+            _logger.LogTrace("Received raw message: {RestMessage}", text);
 
             var json = JsonDocument.Parse(text);
             var newSeq = json.GetLastSequenceEventNumber();

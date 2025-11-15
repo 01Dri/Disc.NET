@@ -1,4 +1,4 @@
-﻿namespace Disc.NET.Enums
+﻿namespace Disc.NET.Shared.Enums
 {
     /// <summary>
     /// Represents all available Gateway Intents used to specify which events the bot should receive from Discord.
