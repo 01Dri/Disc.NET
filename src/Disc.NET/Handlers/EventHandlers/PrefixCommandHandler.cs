@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using Disc.NET.Client.SDK;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
