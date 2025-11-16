@@ -76,8 +76,10 @@ namespace Disc.NET.Handlers
                 if (!string.IsNullOrEmpty(paramsString))
                 {
                     var paramsArray = paramsString.Split(' ');
-                    commandModel.Params =
-                        paramsArray.Select(p => p.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList();
+                    commandModel.Params = paramsArray
+                        .Select(p => p.Trim())
+                        .Where(p => !string.IsNullOrEmpty(p))
+                        .ToList();
                 }
             }
 
@@ -94,5 +96,6 @@ namespace Disc.NET.Handlers
         public char? Prefix { get; set; }
         public string Name { get; set; } = string.Empty;
         public List<string> Params { get; set; } = [];
+
     }
 }

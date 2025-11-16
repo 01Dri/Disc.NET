@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Disc.NET.Client.SDK\Disc.NET.Client.SDK.csproj" />
-    <ProjectReference Include="..\Disc.NET.HttpClient\Disc.NET.Rest.csproj" />
   </ItemGroup>
 
 </Project>
