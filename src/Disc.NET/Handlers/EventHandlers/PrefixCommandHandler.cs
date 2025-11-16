@@ -11,7 +11,7 @@ using Disc.NET.Shared.Extensions;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
-    internal class PrefixCommandHandler : HandlerBase<CommandContext>, IHandler
+    internal class PrefixCommandHandler : HandlerCommandBase, IHandler
     {
         public PrefixCommandHandler(AppConfiguration appConfiguration) : base(appConfiguration)
         {
@@ -21,46 +21,34 @@ namespace Disc.NET.Handlers.EventHandlers
         { 
             if (@event != GatewayEvent.MessageCreate)
             {
-                await base.HandleAsync(@event, contextJson, configuration);
+                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
                 return;
             }
 
             var content = contextJson.GetContent();
-
-            if (content[0] != configuration.BotPrefix)
+            if (string.IsNullOrEmpty(content))
             {
-                await base.HandleAsync(@event, contextJson, configuration);
+                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
                 return;
             }
-            var commandName = content[1..].Split(' ')[0].Trim().ToLowerInvariant();
+            var commandModel = BuildCommandModelByEventContent(content);
+            if (commandModel.Prefix != configuration.BotPrefix)
+            {
+                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
+                return;
+            }
 
-            ICommand<CommandContext>? command = GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandName, configuration);
+            ICommand<CommandContext>? command = 
+                GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name, configuration);
 
             if (command == null)
             {
-                await base.HandleAsync(@event, contextJson, configuration);
+                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
                 return;
             }
 
             var context = BuildContext(contextJson);
-            await command.RunAsync(context);
-        }
-
-
-        protected override CommandContext BuildContext(JsonDocument contextJson)
-        {
-            CommandContext context = new CommandContext();
-            var authorProperty = contextJson.GetAuthor();
-            context.Author = JsonSerializer.Deserialize<Author>(authorProperty);
-            context.Channel = new Channel()
-            {
-                Id = contextJson.GetChannelId()
-            };
-            context.Message = new Message()
-            {
-                Content = contextJson.GetContent()
-            };
-            return context;
+            await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
         }
 
     }

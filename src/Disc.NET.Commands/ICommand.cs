@@ -9,6 +9,6 @@ namespace Disc.NET.Commands
 {
     public interface ICommand<T> where T : IContext
     {
-        Task<bool> RunAsync(T context);
+        Task<bool> RunAsync(T context, List<string> @params);
     }
 }

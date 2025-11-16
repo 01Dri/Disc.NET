@@ -20,10 +20,10 @@ public class Client : ClientBase,IClient
         var serializer = DiscNetSerializer.GetInstance();
         var json = serializer.Serialize(message);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await HttpClient.PostAsync($"channels/{channelId}/messages", content, cancellation);
+        var response = await HttpClient.PostAsync($"channels/{channelId}/messages", content, cancellation).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync(cancellation);
+            var error = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
             throw new DiscNetClientSdkException(error, response.StatusCode);
         }
     }
@@ -32,13 +32,14 @@ public class Client : ClientBase,IClient
     {
         var serializer = DiscNetSerializer.GetInstance();
 
-        var response = await HttpClient.GetAsync($"channels/{channelId}/messages/{messageId}",cancellation);
+        var response = await HttpClient.GetAsync($"channels/{channelId}/messages/{messageId}",cancellation)
+            .ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
-            var error = await response.Content.ReadAsStringAsync(cancellation);
+            var error = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
             throw new DiscNetClientSdkException(error, response.StatusCode);
         }
-        var content = await response.Content.ReadAsStreamAsync(cancellation);
-        return await serializer.DeserializeAsync<ApiMessage>(content, cancellation);
+        var content = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false);
+        return await serializer.DeserializeAsync<ApiMessage>(content, cancellation).ConfigureAwait(false);
     }
 }

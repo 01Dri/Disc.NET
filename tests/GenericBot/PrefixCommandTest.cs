@@ -17,7 +17,7 @@ namespace GenericBot
     public class PrefixCommandTest : CommandBase, ICommand<CommandContext>
     {
 
-        public async Task<bool> RunAsync(CommandContext context)
+        public async Task<bool> RunAsync(CommandContext context, List<string> @params)
         {
             await UseClient().SendMessageAsync(context.Channel?.Id!,new ApiMessage()
             {

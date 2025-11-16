@@ -122,11 +122,9 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventContextData = message.GetEventContextData();
-                Console.WriteLine(JsonSerializer.Serialize(message));
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
-                await HandlerFactory.CreateHandlerChain(configuration)
-                    .HandleAsync(eventType, eventContextData, configuration)
-                    .ConfigureAwait(false);
+                await HandlerFactory.CreateHandlerChain(configuration).HandleAsync(eventType, eventContextData, configuration)
+                   .ConfigureAwait(false);
             }
         }
 

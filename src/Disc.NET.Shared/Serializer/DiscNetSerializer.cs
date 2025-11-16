@@ -36,7 +36,8 @@ namespace Disc.NET.Shared.Serializer
 
         public async Task<T?> DeserializeAsync<T>(Stream json, CancellationToken cancellation = default)
         {
-            return await JsonSerializer.DeserializeAsync<T>(json, _options, cancellation);
+            return await JsonSerializer.DeserializeAsync<T>(json, _options, cancellation)
+                .ConfigureAwait(false);
         }
 
         public string Serialize<T>(T obj)

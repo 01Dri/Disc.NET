@@ -32,35 +32,6 @@ internal abstract class HandlerBase<TContext> where TContext : IContext
         }
     }
 
-
-    protected ICommand<TK>? GetCommandByAttribute<T, TK>(string commandName, AppConfiguration configuration)
-        where T : Attribute where TK : IContext
-    {
-        var assembly = Assembly.GetEntryAssembly();
-        if (assembly == null)
-            throw new InvalidOperationException("Could not determine the entry assembly.");
-
-        var nameProperty = typeof(T).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance);
-        if (nameProperty == null)
-            throw new InvalidOperationException($"Attribute {typeof(T).Name} must have a public property called 'Name'.");
-
-        var commandType = assembly
-            .GetTypes()
-            .Where(t => typeof(ICommand<TK>).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
-            .FirstOrDefault(t =>
-            {
-                var attr = t.GetCustomAttribute<T>();
-                if (attr == null) return false;
-
-                var nameValue = nameProperty.GetValue(attr) as string;
-                return nameValue != null &&
-                       nameValue.Equals(commandName, StringComparison.OrdinalIgnoreCase);
-            });
-        // Temporally code I need other way to get singleton instance of CommandBase
-        CommandBase.GetInstance(configuration);
-        return commandType != null ? (ICommand<TK>)Activator.CreateInstance(commandType)! : null;
-    }
-
     protected abstract TContext BuildContext(JsonDocument contextJson);
 }
 
