@@ -39,7 +39,28 @@ namespace Disc.NET.Handlers.EventHandlers
             }
 
             var context = BuildInteractionContext(contextJson);
+
+            await SendInteractionResponseAsync(contextJson);
             await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);
+
+        }
+        private async Task SendInteractionResponseAsync(JsonDocument contextJson)
+        {
+            var interactionId = contextJson.GetStringProperty("id");
+            var interactionToken = contextJson.GetStringProperty("token");
+            var responseObject = new
+            {
+                type = 4,
+                data = new
+                {
+                    content = "Thinking...",
+                    flags = 64
+                }
+            };
+
+            await Client.InteractionRespondingAsync(interactionId, interactionToken,
+                Serializer.Serialize(responseObject));
         }
     }
+
 }

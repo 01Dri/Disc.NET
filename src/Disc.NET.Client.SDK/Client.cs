@@ -1,11 +1,12 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using Disc.NET.Client.SDK.Interfaces;
+﻿using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Exceptions;
 using Disc.NET.Shared.Serializer;
+using System;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace Disc.NET.Client.SDK;
 
@@ -56,6 +57,15 @@ public class Client : ClientBase,IClient
         await PostAsync(commandJson, $"applications/{_appConfiguration.ApplicationId}/guilds/{guildId}/commands",
             cancellation);
     }
+
+    public async Task InteractionRespondingAsync(string interactionId, string interactionToken, string responseJson,
+        CancellationToken cancellation = default)
+    {
+        var url = $"https://discord.com/api/v10/interactions/{interactionId}/{interactionToken}/callback";
+        await PostAsync(responseJson, url, cancellation);
+    }
+
+
 
     private async Task PostAsync(string json, string uri, CancellationToken cancellation = default)
     {

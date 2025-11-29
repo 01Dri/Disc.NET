@@ -3,10 +3,8 @@ using Disc.NET.Commands;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
-using Microsoft.Extensions.Configuration;
-using System.Reflection;
-using System.Text.Json;
 using Disc.NET.Shared.Serializer;
+using System.Text.Json;
 
 namespace Disc.NET.Handlers;
 

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Disc.NET.Client.SDK.Interfaces;
-using Disc.NET.Commands.Attributes;
+﻿using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Shared.Configurations;
 
 namespace Disc.NET.Commands
 {
     public class CommandBase
     {
-        private static CommandBase ? _instance;
-        private IClient _client;
+        private static CommandBase? _instance;
+        private readonly IClient _client;
 
 
         protected CommandBase()

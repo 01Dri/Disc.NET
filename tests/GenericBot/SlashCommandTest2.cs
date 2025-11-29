@@ -2,11 +2,6 @@
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GenericBot
 {
