@@ -5,13 +5,12 @@ namespace Disc.NET.Commands.Contexts.Models
     public class Channel
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [JsonPropertyName("type")]
-        public int Type { get; set; }
+        public int? Type { get; set; }
 
-        [JsonPropertyName("guild_id")]
-        public ulong? GuildId { get; set; }
+        [JsonPropertyName("guild_id")] public string GuildId { get; set; } = string.Empty;
 
         [JsonPropertyName("position")]
         public int? Position { get; set; }
@@ -29,7 +28,7 @@ namespace Disc.NET.Commands.Contexts.Models
         public bool? Nsfw { get; set; }
 
         [JsonPropertyName("last_message_id")]
-        public ulong? LastMessageId { get; set; }
+        public string LastMessageId { get; set; } =  string.Empty;
 
         [JsonPropertyName("bitrate")]
         public int? Bitrate { get; set; }
@@ -47,16 +46,16 @@ namespace Disc.NET.Commands.Contexts.Models
         public string? Icon { get; set; }
 
         [JsonPropertyName("owner_id")]
-        public ulong? OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
 
         [JsonPropertyName("application_id")]
-        public ulong? ApplicationId { get; set; }
+        public string ApplicationId { get; set; } =  string.Empty;
 
         [JsonPropertyName("managed")]
         public bool? Managed { get; set; }
 
         [JsonPropertyName("parent_id")]
-        public ulong? ParentId { get; set; }
+        public string ParentId { get; set; } = string.Empty;
 
         [JsonPropertyName("last_pin_timestamp")]
         public DateTimeOffset? LastPinTimestamp { get; set; }
@@ -94,8 +93,7 @@ namespace Disc.NET.Commands.Contexts.Models
         //[JsonPropertyName("available_tags")]
         //public List<Tag>? AvailableTags { get; set; }
 
-        [JsonPropertyName("applied_tags")]
-        public List<ulong>? AppliedTags { get; set; }
+        [JsonPropertyName("applied_tags")] public List<string> AppliedTags { get; set; } = [];
 
         //[JsonPropertyName("default_reaction_emoji")]
         //public DefaultReaction? DefaultReactionEmoji { get; set; }

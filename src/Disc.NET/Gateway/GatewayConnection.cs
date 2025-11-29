@@ -1,11 +1,12 @@
-﻿using System.Net.WebSockets;
-using System.Text.Json;
-using System.Threading.Channels;
-using Disc.NET.Handlers;
+﻿using Disc.NET.Handlers;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using Disc.NET.Shared.Extensions;
+using Disc.NET.Shared.Serializer;
 using Microsoft.Extensions.Logging;
+using System.Net.WebSockets;
+using System.Text.Json;
+using System.Threading.Channels;
 
 namespace Disc.NET.Gateway
 {
@@ -63,9 +64,14 @@ namespace Disc.NET.Gateway
             // Wait for the initial HELLO event and start the heartbeat loop
             var helloResult = await _ws.ReceiveAsync(_buffer, CancellationToken.None).ConfigureAwait(false);
             var helloJson = helloResult.GetJsonDocument(_buffer);
-            var heartbeatInterval = helloJson.GetHeartbeatInterval();
+            var heartbeatInterval = helloJson.GetIntDeepProperty("d", "heartbeat_interval");
             _logger.LogDebug("Received HELLO. Heartbeat interval: {Interval} ms", heartbeatInterval);
-            StartHeartbeatLoop(heartbeatInterval);
+            if (heartbeatInterval == null)
+            {
+                _logger.LogError("HELLO payload did not contain a valid heartbeat interval. Aborting connection.");
+                return;
+            }
+            StartHeartbeatLoop(heartbeatInterval.Value);
 
             // Identify and authenticate
             _logger.LogDebug("Sending Identify payload...");
@@ -88,21 +94,27 @@ namespace Disc.NET.Gateway
             // Consumer: Reads messages from the channel and dispatches them
             await foreach (var message in _channel.Reader.ReadAllAsync())
             {
-                var opCode = (GatewayOpCode)message.GetOpCode();
+                var opCode = message.GetIntProperty("op");
+                if (opCode == null)
+                {
+                    continue;
+                }
+
+                var opCodeEnum = (GatewayOpCode)opCode;
                 if (!Enum.IsDefined(typeof(GatewayOpCode), opCode))
                 {
                     _logger.LogDebug("Received message without op code.");
                     continue;
                 }
 
-                if (opCode == GatewayOpCode.HeartbeatAck)
+                if (opCodeEnum == GatewayOpCode.HeartbeatAck)
                 {
                     _logger.LogDebug("Received Heartbeat ACK.");
                     _heartbeatAckReceived = true;
                     continue;
                 }
 
-                var eventName = message.GetEventName();
+                var eventName = message.GetStringProperty("t");
                 if (string.IsNullOrEmpty(eventName))
                 {
                     _logger.LogDebug("Received message without event name.");
@@ -123,6 +135,8 @@ namespace Disc.NET.Gateway
 
                 var eventContextData = message.GetEventContextData();
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
+                _logger.LogDebug("Event context: {Event}", DiscNetSerializer.GetInstance().Serialize(eventContextData));
+
                 await HandlerFactory.CreateHandlerChain(configuration).HandleAsync(eventType, eventContextData, configuration)
                    .ConfigureAwait(false);
             }
@@ -263,12 +277,17 @@ namespace Disc.NET.Gateway
             _logger.LogTrace("Received raw message: {RestMessage}", text);
 
             var json = JsonDocument.Parse(text);
-            var newSeq = json.GetLastSequenceEventNumber();
+            var newSeq = json.GetIntProperty("s");
 
+            if (newSeq == null)
+            {
+                _logger.LogError("");
+                return null;
+            }
             if (newSeq != 0 && newSeq != _lastSequenceEventNumber)
             {
                 _logger.LogDebug("Sequence updated from {OldSeq} to {NewSeq}", _lastSequenceEventNumber, newSeq);
-                _lastSequenceEventNumber = newSeq;
+                _lastSequenceEventNumber = newSeq.Value;
             }
 
             return json;

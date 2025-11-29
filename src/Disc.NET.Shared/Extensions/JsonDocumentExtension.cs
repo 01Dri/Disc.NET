@@ -1,55 +1,122 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 
 namespace Disc.NET.Shared.Extensions
 {
     internal static class JsonDocumentExtension
     {
-        public static int GetHeartbeatInterval(this JsonDocument document)
+
+        public static int? GetIntDeepProperty(this JsonDocument document, string propertyInit, string propertyResult)
         {
-            return document.RootElement.GetProperty("d").GetProperty("heartbeat_interval").GetInt32();
+            if (document.RootElement.TryGetProperty(propertyInit, out var d) &&
+                d.TryGetProperty(propertyResult, out var interval) &&
+                interval.ValueKind == JsonValueKind.Number)
+            {
+                return interval.GetInt32();
+            }
+
+            return null;
         }
 
-        public static int GetLastSequenceEventNumber(this JsonDocument document)
+        public static int? GetIntProperty(this JsonDocument document, string property)
         {
-            var sequenceProperty = document.RootElement.GetProperty("s");
-            return sequenceProperty.ValueKind == JsonValueKind.Null ? 0 : sequenceProperty.GetInt32();
+            if (document.RootElement.TryGetProperty(property, out var sElement) &&
+                sElement.ValueKind == JsonValueKind.Number)
+            {
+                return sElement.GetInt32();
+            }
+
+            return null;
         }
 
-        public static string? GetEventName(this JsonDocument document)
+        public static string? GetStringDeepProperty(this JsonDocument document, string propertyInit,
+            string propertyResult)
         {
-            return document.RootElement.GetProperty("t").GetString();
+            if (document.RootElement.TryGetProperty(propertyInit, out var d) &&
+                d.TryGetProperty(propertyResult, out var interval) &&
+                interval.ValueKind == JsonValueKind.String)
+            {
+                return interval.GetString();
+            }
+
+            return null;
         }
 
-        public static int GetOpCode(this JsonDocument document)
+        public static string? GetStringProperty(this JsonDocument document, string property)
         {
-            return document.RootElement.GetProperty("op").GetInt32();
+            if (document.RootElement.TryGetProperty(property, out var tElement))
+                return tElement.GetString();
+
+            return null;
         }
 
-        public static JsonDocument GetEventContextData(this JsonDocument document)
+
+        public static DateTime? GetDateTimeProperty(this JsonDocument document, string property)
         {
-            var property = document.RootElement.GetProperty("d");
-            return JsonDocument.Parse(JsonSerializer.Serialize(property));
+            if (document.RootElement.TryGetProperty(property, out var idElement))
+            {
+                if (idElement.ValueKind == JsonValueKind.Null)
+                {
+                    return null;
+                }
+
+                return idElement.GetDateTime();
+            }
+
+            return null;
         }
 
-        public static string GetAuthor(this JsonDocument document)
+        public static JsonDocument? GetEventContextData(this JsonDocument document)
         {
-            return JsonSerializer.Serialize(document.RootElement.GetProperty("author"));
+            if (document.RootElement.TryGetProperty("d", out var dElement) &&
+                dElement.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<JsonDocument>(dElement.GetRawText());
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            return null;
         }
 
-        public static string GetContent(this JsonDocument document)
+        public static string? GetJsonStringProperty(this JsonDocument document, string propertyName)
         {
-            return document.RootElement.GetProperty("content").GetString() ?? string.Empty;
+            if (document.RootElement.TryGetProperty(propertyName, out var propertyElement))
+                return JsonSerializer.Serialize(propertyElement);
+
+            return null;
         }
 
-        public static string GetChannelId(this JsonDocument document)
+
+        public static string? GetDeepJsonStringProperty(this JsonDocument document, string propertyInit, string propertyResult)
         {
-            return document.RootElement.GetProperty("channel_id").GetString() ?? string.Empty;
+            if (document.RootElement.TryGetProperty(propertyInit, out var d) &&
+                d.TryGetProperty(propertyResult, out var interval))
+            {
+                return JsonSerializer.Serialize(interval);
+            }
+
+            return null;
         }
 
-        public static string GetId(this JsonDocument document)
+        public static JsonDocument? GetJsonDocumentProperty(this JsonDocument document, string propertyName)
         {
-            return document.RootElement.GetProperty("id").GetString() ?? string.Empty;
+            if (document.RootElement.TryGetProperty(propertyName, out var propertyElement))
+                return propertyElement.Deserialize<JsonDocument>();
+
+            return null;
+        }
+
+        public static string? GetJsonStringProperty(this JsonDocument document)
+        {
+            return JsonSerializer.Serialize(document);
         }
 
     }
+
 }

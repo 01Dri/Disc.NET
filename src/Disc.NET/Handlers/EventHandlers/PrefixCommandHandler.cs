@@ -1,12 +1,10 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using Disc.NET.Commands;
+﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using Disc.NET.Shared.Extensions;
+using System.Text.Json;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
@@ -17,14 +15,14 @@ namespace Disc.NET.Handlers.EventHandlers
         }
 
         public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson, AppConfiguration configuration)
-        { 
+        {
             if (@event != GatewayEvent.MessageCreate)
             {
                 await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
                 return;
             }
 
-            var content = contextJson.GetContent();
+            var content = contextJson.GetStringProperty("content");
             if (string.IsNullOrEmpty(content))
             {
                 await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
@@ -37,8 +35,8 @@ namespace Disc.NET.Handlers.EventHandlers
                 return;
             }
 
-            ICommand<CommandContext>? command = 
-                GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name, configuration);
+            var command = (IPrefixCommand)
+                GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name);
 
             if (command == null)
             {
@@ -46,7 +44,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 return;
             }
 
-            var context = BuildContext(contextJson);
+            var context = BuildCommandContext(contextJson);
             await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
         }
 

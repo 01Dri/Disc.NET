@@ -11,13 +11,13 @@ using Disc.NET.Client.SDK.Messages;
 namespace GenericBot
 {
     [PrefixCommand("helloword2")]
-    public class PrefixCommandWithParamsTest : CommandBase, ICommand<CommandContext> 
+    public class PrefixPrefixCommandWithParamsTest : CommandBase, IPrefixCommand
     {
         public async Task<bool> RunAsync(CommandContext context, List<string> @params)
         {
             if (@params.Contains("test"))
             {
-                await UseClient().SendMessageAsync(context.Channel?.Id!, new ApiMessage()
+                await UseClient().SendMessageAsync(context.ChannelId, new ApiMessage()
                 {
                     Content = "Parâmetro 'test' recebido!",
                     Embeds =

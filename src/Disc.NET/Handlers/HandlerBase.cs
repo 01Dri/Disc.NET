@@ -6,6 +6,7 @@ using Disc.NET.Shared.Enums;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.Text.Json;
+using Disc.NET.Shared.Serializer;
 
 namespace Disc.NET.Handlers;
 
@@ -13,10 +14,11 @@ internal abstract class HandlerBase<TContext> where TContext : IContext
 {
     private IHandler? _next;
     protected IClient Client;
-
+    protected DiscNetSerializer Serializer;
     protected HandlerBase(AppConfiguration appConfiguration)
     {
         Client = CommandBase.GetInstance(appConfiguration).UseClient();
+        Serializer = DiscNetSerializer.GetInstance();
     }
 
 
@@ -32,6 +34,9 @@ internal abstract class HandlerBase<TContext> where TContext : IContext
         }
     }
 
-    protected abstract TContext BuildContext(JsonDocument contextJson);
+    protected abstract CommandContext BuildCommandContext(JsonDocument contextJson);
+    protected abstract InteractionContext BuildInteractionContext(JsonDocument contextJson);
+
+
 }
 

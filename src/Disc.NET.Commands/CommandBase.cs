@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Disc.NET.Client.SDK.Interfaces;
+using Disc.NET.Commands.Attributes;
 using Disc.NET.Shared.Configurations;
 
 namespace Disc.NET.Commands
@@ -32,6 +33,7 @@ namespace Disc.NET.Commands
         }
 
         public IClient UseClient() => _instance!._client;
+
 
     }
 

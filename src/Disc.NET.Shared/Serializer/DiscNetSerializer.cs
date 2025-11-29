@@ -34,6 +34,15 @@ namespace Disc.NET.Shared.Serializer
             return JsonSerializer.Deserialize<T>(json, _options);
         }
 
+        public T? Deserialize<T>(JsonElement json)
+        {
+            var jsonString = JsonSerializer.Serialize(json.Deserialize<JsonDocument>());
+            return Deserialize<T>(jsonString);
+        }
+
+
+
+
         public async Task<T?> DeserializeAsync<T>(Stream json, CancellationToken cancellation = default)
         {
             return await JsonSerializer.DeserializeAsync<T>(json, _options, cancellation)

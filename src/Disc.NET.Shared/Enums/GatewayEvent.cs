@@ -11,5 +11,7 @@ namespace Disc.NET.Shared.Enums
         MessageCreate,
         [Description("MESSAGE_DELETE")]
         MessageDelete,
+        [Description("INTERACTION_CREATE")]
+        InteractionCreate
     }
 }

@@ -7,7 +7,8 @@ using Disc.NET.Commands.Contexts;
 
 namespace Disc.NET.Commands
 {
-    public interface ICommand<T> where T : IContext
+    public interface IPrefixCommand  : ICommand<CommandContext>
     {
+        Task<bool> RunAsync(CommandContext context, List<string> @params);
     }
 }

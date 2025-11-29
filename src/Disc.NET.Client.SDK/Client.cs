@@ -11,8 +11,10 @@ namespace Disc.NET.Client.SDK;
 
 public class Client : ClientBase,IClient
 {
+    private readonly AppConfiguration _appConfiguration;
     public Client(AppConfiguration appConfiguration, HttpClient client) : base(appConfiguration, client)
     {
+        _appConfiguration = appConfiguration;
     }
 
     public async Task SendMessageAsync(string channelId, ApiMessage message, CancellationToken cancellation = default)
@@ -41,5 +43,29 @@ public class Client : ClientBase,IClient
         }
         var content = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false);
         return await serializer.DeserializeAsync<ApiMessage>(content, cancellation).ConfigureAwait(false);
+    }
+
+    public async Task RegisterGlobalSlashCommandAsync(string commandJson, CancellationToken cancellation = default)
+    {
+        await PostAsync(commandJson, $"applications/{_appConfiguration.ApplicationId}/commands",
+            cancellation);
+    }
+
+    public async Task RegisterGuildSlashCommandAsync(string commandJson, string guildId, CancellationToken cancellation = default)
+    {
+        await PostAsync(commandJson, $"applications/{_appConfiguration.ApplicationId}/guilds/{guildId}/commands",
+            cancellation);
+    }
+
+    private async Task PostAsync(string json, string uri, CancellationToken cancellation = default)
+    {
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await HttpClient.PostAsync(uri, content, CancellationToken.None).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
+            throw new DiscNetClientSdkException(error, response.StatusCode);
+        }
     }
 }

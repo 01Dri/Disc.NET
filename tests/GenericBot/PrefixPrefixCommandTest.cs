@@ -14,12 +14,12 @@ using Disc.NET.Shared.Configurations;
 namespace GenericBot
 {
     [PrefixCommand("helloword")]
-    public class PrefixCommandTest : CommandBase, ICommand<CommandContext>
+    public class PrefixPrefixCommandTest : CommandBase, IPrefixCommand
     {
 
         public async Task<bool> RunAsync(CommandContext context, List<string> @params)
         {
-            await UseClient().SendMessageAsync(context.Channel?.Id!,new ApiMessage()
+            await UseClient().SendMessageAsync(context.ChannelId,new ApiMessage()
             {
                 Content = "Olá Mundo",
                 Embeds = 

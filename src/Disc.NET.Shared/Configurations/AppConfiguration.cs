@@ -6,7 +6,7 @@ namespace Disc.NET.Shared.Configurations
     {
         public  string Token { get; }
         public char BotPrefix { get; init;  }
-
+        public required long ApplicationId { get; init; }
 
         public List<GatewayIntent> Intents { get; init; } = new()
         {

@@ -3,13 +3,8 @@ using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Disc.NET.Handlers
 {
@@ -17,52 +12,75 @@ namespace Disc.NET.Handlers
     {
         public HandlerCommandBase(AppConfiguration appConfiguration) : base(appConfiguration)
         {
+            CommandBase.GetInstance(appConfiguration);
         }
 
-        protected ICommand<TK>? GetCommandByAttribute<T, TK>(string commandName, AppConfiguration configuration)
-            where T : Attribute where TK : IContext
+        protected ICommand<TKContext>? GetCommandByAttribute<TAttribute, TKContext>(string commandName)
+            where TKContext : IContext
+            where TAttribute : Attribute
+
+        {
+            var commandType = GetCommandTypeByName<TAttribute, TKContext>(commandName);
+            return commandType != null ? (ICommand<TKContext>)Activator.CreateInstance(commandType)! : null;
+        }
+
+        protected List<T> GetCommandAttributes<T>() where T : Attribute
         {
             var assembly = Assembly.GetEntryAssembly();
             if (assembly == null)
                 throw new InvalidOperationException("Could not determine the entry assembly.");
 
-            var nameProperty = typeof(T).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance);
-            if (nameProperty == null)
-                throw new InvalidOperationException($"Attribute {typeof(T).Name} must have a public property called 'Name'.");
-
-            var commandType = assembly
+            return assembly
                 .GetTypes()
-                .Where(t => typeof(ICommand<TK>).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
-                .FirstOrDefault(t =>
-                {
-                    var attr = t.GetCustomAttribute<T>();
-                    if (attr == null) return false;
-
-                    var nameValue = nameProperty.GetValue(attr) as string;
-                    return nameValue != null &&
-                           nameValue.Equals(commandName, StringComparison.OrdinalIgnoreCase);
-                });
-            // Temporally code I need other way to get singleton instance of CommandBase
-            CommandBase.GetInstance(configuration);
-            return commandType != null ? (ICommand<TK>)Activator.CreateInstance(commandType)! : null;
+                .Where(t => t.GetCustomAttribute<T>() != null)
+                .Select(t => t.GetCustomAttribute<T>()!)
+                .ToList();
         }
 
 
-        protected override CommandContext BuildContext(JsonDocument contextJson)
+        protected override CommandContext BuildCommandContext(JsonDocument contextJson)
         {
             CommandContext context = new CommandContext();
-            var authorProperty = contextJson.GetAuthor();
-            context.Author = JsonSerializer.Deserialize<Author>(authorProperty);
-            context.Channel = new Channel()
+            var authorProperty = contextJson.GetJsonStringProperty("author");
+            if (authorProperty != null)
             {
-                Id = contextJson.GetChannelId()
-            };
-            context.Message = new Message()
-            {
-                Content = contextJson.GetContent()
-            };
+                context.Author = Serializer.Deserialize<Author>(authorProperty);
+            }
+
+            context.ChannelId = contextJson.GetStringProperty("channel_id") ?? string.Empty;
+            context.Content = contextJson.GetStringProperty("content") ?? string.Empty;
+            context.Id = contextJson.GetStringProperty("id") ?? string.Empty;
+            context.ChannelType = contextJson.GetIntProperty("channel_type") ?? 0;
+            context.GuildId = contextJson.GetStringProperty("guild_id") ?? string.Empty;
+            context.Timestamp = contextJson.GetDateTimeProperty("timestamp");
+            context.EditedTimestamp = contextJson.GetDateTimeProperty("edited_timestamp");
+            context.Type = contextJson.GetIntProperty("type") ?? 0;
             return context;
         }
+
+        protected override InteractionContext BuildInteractionContext(JsonDocument contextJson)
+        {
+            InteractionContext context = new InteractionContext();
+            var memberProperty = contextJson.GetJsonStringProperty("member");
+            if (memberProperty != null)
+            {
+                context.Member = Serializer.Deserialize<Member>(memberProperty);
+            }
+
+            context.Id = contextJson.GetStringProperty("id") ?? string.Empty;
+            context.GuildId = contextJson.GetStringProperty("guild_id") ?? string.Empty;
+            var channelProperty = contextJson.GetJsonStringProperty("channel");
+
+            if (channelProperty != null)
+            {
+                context.Channel = Serializer.Deserialize<Channel>(channelProperty);
+            }
+
+            context.Type = contextJson.GetIntProperty("type") ?? 0;
+            context.Context = contextJson.GetIntProperty("context") ?? 0;
+            return context;
+        }
+
 
         protected CommandModel BuildCommandModelByEventContent(string content)
         {
@@ -88,6 +106,40 @@ namespace Disc.NET.Handlers
             return commandModel;
         }
 
+
+        private Type? GetCommandTypeByName<T, TK>(string name)
+        where TK : IContext
+        where T : Attribute
+        {
+            var assembly = Assembly.GetEntryAssembly()
+                           ?? throw new InvalidOperationException("Could not determine the entry assembly.");
+
+            var nameProp = typeof(T).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance)
+                           ?? throw new InvalidOperationException(
+                               $"Attribute {typeof(T).Name} must have a public property called 'Name'.");
+
+            var commandType = assembly
+                .GetTypes()
+                .Where(t =>
+                    typeof(ICommand<TK>).IsAssignableFrom(t) &&
+                    !t.IsAbstract &&
+                    !t.IsInterface)
+                .FirstOrDefault(t =>
+                {
+                    var attrs = t.GetCustomAttributes<T>();
+                    foreach (var attr in attrs)
+                    {
+                        var nameValue = nameProp.GetValue(attr) as string;
+                        if (nameValue != null &&
+                            nameValue.Equals(name, StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+
+                    return false;
+                });
+            return commandType;
+
+        }
 
     }
 
