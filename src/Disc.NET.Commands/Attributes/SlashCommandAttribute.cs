@@ -11,6 +11,7 @@ namespace Disc.NET.Commands.Attributes
     public class SlashCommandAttribute : Attribute
     {
         public string Name { get; init; }
+        // Talvez abstrair isso para um unico tipo de comando futuramente
         public InteractionType Type { get; init; }
         public string Description { get; init; }
 

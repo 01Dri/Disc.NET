@@ -26,7 +26,7 @@ namespace Disc.NET.Handlers.EventHandlers
             foreach (var attribute in attributes)
             {
                 var command = (ISlashCommand)
-                    GetCommandByAttribute<SlashCommandAttribute, CommandContext>(attribute.Name);
+                    GetCommandByAttribute<SlashCommandAttribute, InteractionContext>(attribute.Name);
                 if (command == null)
                 {
                     continue;

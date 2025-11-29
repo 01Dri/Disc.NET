@@ -10,7 +10,7 @@ using Disc.NET.Shared.Enums;
 
 namespace GenericBot
 {
-    [SlashCommand("teste3", InteractionType.SubCommand, "teste comand", GuildId = "1336392659992051762")]
+    [SlashCommand("comando_com_parametros", InteractionType.SubCommand, "teste comand", GuildId = "1336392659992051762")]
     public class SlashCommandTest : CommandBase, ISlashCommand
     {
         public async Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult paramsResult)
