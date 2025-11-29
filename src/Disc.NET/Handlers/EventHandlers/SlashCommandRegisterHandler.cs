@@ -31,21 +31,21 @@ namespace Disc.NET.Handlers.EventHandlers
                 {
                     continue;
                 }
-                var commandObject = new SlashCommandCreate()
+                var slashCommandToRegisterObject = new SlashCommandCreate()
                 {
                     Name = attribute.Name,
                     Description = attribute.Description,
                     Type = attribute.Type,
                     Options = command.BuildOptions()
                 };
-                var commandJson = Serializer.Serialize(commandObject);
+                var slashComamndToRegisterJson = Serializer.Serialize(slashCommandToRegisterObject);
                 var guildId = attribute.GuildId;
                 if (!string.IsNullOrEmpty(guildId))
                 {
-                    await Client.RegisterGuildSlashCommandAsync(commandJson, guildId).ConfigureAwait(false);
+                    await Client.RegisterGuildSlashCommandAsync(slashComamndToRegisterJson, guildId).ConfigureAwait(false);
                     continue;
                 }
-                await Client.RegisterGlobalSlashCommandAsync(commandJson);
+                await Client.RegisterGlobalSlashCommandAsync(slashComamndToRegisterJson);
             }
         }
     }
