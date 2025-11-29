@@ -4,6 +4,7 @@ using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using System.Text.Json;
+using Disc.NET.Shared.Extensions;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
@@ -22,7 +23,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 return;
             }
 
-            var data = contextJson.RootElement.GetProperty("data");
+            var data = contextJson.GetJsonStringProperty("data");
             var slashCommandResult = Serializer.Deserialize<SlashCommandParamsResult>(data);
             if (slashCommandResult == null)
             {
