@@ -10,7 +10,7 @@ namespace Disc.NET.Commands
 {
     public interface ISlashCommand  : ICommand<InteractionContext>
     {
-        Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult paramsResult);
+        Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult @params);
         List<SlashCommandOptions> BuildOptions() => [];
 
     }

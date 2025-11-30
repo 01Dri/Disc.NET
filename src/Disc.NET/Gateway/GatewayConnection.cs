@@ -5,6 +5,7 @@ using Disc.NET.Shared.Extensions;
 using Disc.NET.Shared.Serializer;
 using Microsoft.Extensions.Logging;
 using System.Net.WebSockets;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -150,7 +151,7 @@ namespace Disc.NET.Gateway
         /// If a heartbeat acknowledgment (ACK) is not received before the next scheduled heartbeat,
         /// the connection is considered unhealthy and should be reestablished.
         /// </remarks>
-        private void StartHeartbeatLoop(int heartbeatInterval)
+        private void  StartHeartbeatLoop(int heartbeatInterval)
         {
             _heartbeatCts = new CancellationTokenSource();
 
@@ -277,17 +278,11 @@ namespace Disc.NET.Gateway
             _logger.LogTrace("Received raw message: {RestMessage}", text);
 
             var json = JsonDocument.Parse(text);
-            var newSeq = json.GetIntProperty("s");
-
-            if (newSeq == null)
-            {
-                _logger.LogError("");
-                return null;
-            }
+            var newSeq = json.GetIntProperty("s") ?? 0;
             if (newSeq != 0 && newSeq != _lastSequenceEventNumber)
             {
                 _logger.LogDebug("Sequence updated from {OldSeq} to {NewSeq}", _lastSequenceEventNumber, newSeq);
-                _lastSequenceEventNumber = newSeq.Value;
+                _lastSequenceEventNumber = newSeq;
             }
 
             return json;

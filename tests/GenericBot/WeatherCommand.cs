@@ -10,16 +10,23 @@ using System.Text.Json.Serialization;
 namespace GenericBot
 {
     [SlashCommand("tempo", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
-
-    public class WeatherCommand : CommandBase, ISlashCommand
+    public class WeatherCommand : ISlashCommand
     {
-        public async Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult paramsResult)
+        private readonly HttpClient _httpClient;
+
+        public WeatherCommand(HttpClient httpClient)
         {
+            _httpClient = httpClient;
+        }
+
+
+        public async Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult @params)
+        {
+
             var weatherApi =
                 "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m";
 
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(weatherApi);
+            var response = await _httpClient.GetAsync(weatherApi);
 
             if (!response.IsSuccessStatusCode)
                 return false;
@@ -105,10 +112,12 @@ namespace GenericBot
                 }
             };
 
-            var channelId = context.Channel?.Id;
+            //var channelId = context.Channel?.Id;
 
-            if (!string.IsNullOrEmpty(channelId))
-                await UseClient().SendMessageAsync(channelId, message);
+            //if (!string.IsNullOrEmpty(channelId))
+            //    await UseClient().SendMessageAsync(channelId, message);
+
+            await context.Response.SendMessageAsync(message, CancellationToken.None);
 
             return true;
         }

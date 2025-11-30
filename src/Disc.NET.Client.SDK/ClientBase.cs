@@ -4,9 +4,10 @@ namespace Disc.NET.Client.SDK
 {
     public abstract class ClientBase
     {
+
         protected readonly HttpClient HttpClient;
         protected AppConfiguration AppConfiguration { get; }
-
+         
 
         protected ClientBase(AppConfiguration appConfiguration, HttpClient client)
         {

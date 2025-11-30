@@ -5,14 +5,19 @@ using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
+using Autofac;
+using Autofac.Core;
+using Disc.NET.Configuration;
 
 namespace Disc.NET.Handlers
 {
     internal abstract class HandlerCommandBase : HandlerBase<CommandContext>
     {
+
+        private readonly AppConfiguration _appConfiguration;
         public HandlerCommandBase(AppConfiguration appConfiguration) : base(appConfiguration)
         {
-            CommandBase.GetInstance(appConfiguration);
+            _appConfiguration = appConfiguration;
         }
 
         protected ICommand<TKContext>? GetCommandByAttribute<TAttribute, TKContext>(string commandName)
@@ -21,7 +26,16 @@ namespace Disc.NET.Handlers
 
         {
             var commandType = GetCommandTypeByName<TAttribute, TKContext>(commandName);
-            return commandType != null ? (ICommand<TKContext>)Activator.CreateInstance(commandType)! : null;
+
+            if (commandType == null) return null;
+            var container = DiscNetContainer.GetInstance();
+            if (_appConfiguration.UseContainer)
+            {
+                var scope = container.Build().BeginLifetimeScope();
+                return scope.Resolve(commandType)
+                    as ICommand<TKContext>;
+            }
+            return Activator.CreateInstance(commandType) as ICommand<TKContext>;
         }
 
         protected List<T> GetCommandAttributes<T>() where T : Attribute
@@ -38,7 +52,7 @@ namespace Disc.NET.Handlers
         }
 
 
-        protected override CommandContext BuildCommandContext(JsonDocument contextJson)
+        protected override CommandContext BuildCommandContext(JsonDocument contextJson, AppConfiguration appConfiguration)
         {
             CommandContext context = new CommandContext();
             var authorProperty = contextJson.GetJsonStringProperty("author");
@@ -55,10 +69,14 @@ namespace Disc.NET.Handlers
             context.Timestamp = contextJson.GetDateTimeProperty("timestamp");
             context.EditedTimestamp = contextJson.GetDateTimeProperty("edited_timestamp");
             context.Type = contextJson.GetIntProperty("type") ?? 0;
+            context.Response = new CommandResponse(appConfiguration)
+            {
+                ChannelId = context.ChannelId
+            };
             return context;
         }
 
-        protected override InteractionContext BuildInteractionContext(JsonDocument contextJson)
+        protected override InteractionContext BuildInteractionContext(JsonDocument contextJson, AppConfiguration appConfiguration)
         {
             InteractionContext context = new InteractionContext();
             var memberProperty = contextJson.GetJsonStringProperty("member");
@@ -78,6 +96,10 @@ namespace Disc.NET.Handlers
 
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Context = contextJson.GetIntProperty("context") ?? 0;
+            context.Response = new InteractionResponse(appConfiguration)
+            {
+                ChannelId = context.Channel?.Id ?? string.Empty,
+            };
             return context;
         }
 

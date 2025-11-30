@@ -38,7 +38,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 return;
             }
 
-            var context = BuildInteractionContext(contextJson);
+            var context = BuildInteractionContext(contextJson, configuration);
 
             await SendInteractionResponseAsync(contextJson);
             await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);

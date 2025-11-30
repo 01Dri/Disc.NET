@@ -44,7 +44,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 return;
             }
 
-            var context = BuildCommandContext(contextJson);
+            var context = BuildCommandContext(contextJson, configuration);
             await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
         }
 

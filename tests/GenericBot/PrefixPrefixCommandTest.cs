@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Disc.NET.Client.SDK;
-using Disc.NET.Client.SDK.Messages;
+﻿using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Commands.Contexts.Models;
-using Disc.NET.Shared.Configurations;
 
 namespace GenericBot
 {
     [PrefixCommand("helloword")]
-    public class PrefixPrefixCommandTest : CommandBase, IPrefixCommand
+    public class PrefixPrefixCommandTest : IPrefixCommand
     {
 
         public async Task<bool> RunAsync(CommandContext context, List<string> @params)
         {
-            await UseClient().SendMessageAsync(context.ChannelId,new ApiMessage()
+            await context.Response.SendMessageAsync(new ApiMessage()
             {
                 Content = "Olá Mundo",
-                Embeds = 
+                Embeds =
                 [
                     new()
                     {
