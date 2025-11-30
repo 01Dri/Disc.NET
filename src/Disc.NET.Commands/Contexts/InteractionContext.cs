@@ -1,12 +1,7 @@
-﻿using Disc.NET.Commands.Contexts.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Disc.NET.Client.SDK;
+﻿using Disc.NET.Client.SDK;
 using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
+using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Shared.Configurations;
 
 namespace Disc.NET.Commands.Contexts
@@ -22,7 +17,7 @@ namespace Disc.NET.Commands.Contexts
 
         public InteractionResponse Response { get; set; }
     }
-     
+
     public class InteractionResponse(AppConfiguration appConfiguration)
     {
         private readonly IClient _client = ClientSingleton.GetInstance(appConfiguration);

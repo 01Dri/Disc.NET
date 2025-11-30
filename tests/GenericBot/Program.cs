@@ -8,12 +8,15 @@ using Disc.NET.Shared.Enums;
 
 
 App app = new App().WithDebugLogger();
-var appConfiguration = new AppConfiguration("MTQzNjE3ODQ0ODkwMDE2MTYyMA.Gevo76.nqkBj12AGeZI-3BmCSLa6oz1_ETbvpb9tiXCFA")
-{
-    Intents = [GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES],
-    ApplicationId = 1436178448900161620,
-    BotPrefix = '?'
-};
+var token = Environment.GetEnvironmentVariable("GENERIC_BOT_TOKEN")!;
+var applicationId = Environment.GetEnvironmentVariable("GENERIC_BOT_APPLICATION_ID")!;
+var appConfiguration =
+    new AppConfiguration(token)
+    {
+        Intents = [GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES],
+        ApplicationId = long.Parse(applicationId),
+        BotPrefix = '?'
+    };
 
 // Tratar os lifetimes, por padrão é InstancePerDependency (uma nova toda vez que é resolvida)
 app.UseDependencyInjection(appConfiguration).WithHttpClient();
