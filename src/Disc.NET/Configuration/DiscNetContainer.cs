@@ -67,5 +67,11 @@ namespace Disc.NET.Configuration
             _container = _containerBuilder.Build();
             return _container;
         }
+
+        public object Resolve(Type type)
+        {
+            var scope = Build().BeginLifetimeScope();
+            return scope.Resolve(type);
+        }
     }
 }

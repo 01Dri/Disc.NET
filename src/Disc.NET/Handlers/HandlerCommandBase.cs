@@ -28,12 +28,9 @@ namespace Disc.NET.Handlers
             var commandType = GetCommandTypeByName<TAttribute, TKContext>(commandName);
 
             if (commandType == null) return null;
-            var container = DiscNetContainer.GetInstance();
             if (_appConfiguration.UseContainer)
             {
-                var scope = container.Build().BeginLifetimeScope();
-                return scope.Resolve(commandType)
-                    as ICommand<TKContext>;
+                return DiscNetContainer.GetInstance().Resolve(commandType) as ICommand<TKContext>;
             }
             return Activator.CreateInstance(commandType) as ICommand<TKContext>;
         }

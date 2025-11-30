@@ -39,7 +39,25 @@ namespace Disc.NET
 
             return loggerFactory.CreateLogger<GatewayConnection>();
         }
-
+        /// <summary>
+        /// Configures the container usage strategy for the application.
+        ///
+        /// By default, object creation is performed using the standard C# <see cref="Activator"/>,
+        /// which does not provide support for dependency injection.
+        ///
+        /// When this method is called, the application switches to using the Autofac container,
+        /// enabling full dependency injection support for registered components.
+        ///
+        /// In summary:
+        /// - Without calling this method → uses default Activator (no DI)
+        /// - Calling this method → enables Autofac and dependency injection
+        /// </summary>
+        /// <param name="appConfiguration">
+        /// Application configuration instance where the container selection flag is stored.
+        /// </param>
+        /// <returns>
+        /// Returns the singleton instance of <see cref="DiscNetContainer"/> configured to use Autofac.
+        /// </returns>
         public DiscNetContainer UseDependencyInjection(AppConfiguration appConfiguration)
         {
             appConfiguration.UseContainer = true;
