@@ -7,11 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Requests\" />
+    <ProjectReference Include="..\Disc.NET.Client.SDK\Disc.NET.Client.SDK.csproj" />
+    <ProjectReference Include="..\Disc.NET.Commands\Disc.NET.Commands.csproj" />
+    <ProjectReference Include="..\Disc.NET.Shared\Disc.NET.Shared.csproj" />
   </ItemGroup>
 
 </Project>

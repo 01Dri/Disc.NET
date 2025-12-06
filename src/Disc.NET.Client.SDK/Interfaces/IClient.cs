@@ -1,0 +1,17 @@
+﻿using Disc.NET.Client.SDK.Messages;
+
+namespace Disc.NET.Client.SDK.Interfaces;
+
+public interface IClient
+{
+    Task SendMessageAsync(string channelId,ApiMessage message, CancellationToken cancellation = default);
+
+    // Using ApiMessage temporarily, will create a specific class for receiving messages later
+    Task<ApiMessage?> GetMessageAsync(string channelId, string messageId, CancellationToken cancellation = default);
+
+    Task RegisterGlobalSlashCommandAsync(string commandJson, CancellationToken cancellation = default);
+    Task RegisterGuildSlashCommandAsync(string commandJson, string guildId, CancellationToken cancellation = default);
+
+    Task InteractionRespondingAsync(string interactionId, string interactionToken, string responseJson, CancellationToken cancellation = default);
+
+}

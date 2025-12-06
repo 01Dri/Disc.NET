@@ -1,12 +1,23 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 
-using System.Net.Http;
-using System.Net.WebSockets;
-using System.Text;
-using System.Text.Json;
 using Disc.NET;
+using Disc.NET.Shared.Configurations;
+using Disc.NET.Shared.Enums;
 
 
-App app = new App();
-await app.RunAsync("MTQzNjE3ODQ0ODkwMDE2MTYyMA.Gevo76.nqkBj12AGeZI-3BmCSLa6oz1_ETbvpb9tiXCFA");
+
+App app = new App().WithDebugLogger();
+var token = Environment.GetEnvironmentVariable("GENERIC_BOT_TOKEN")!;
+var applicationId = Environment.GetEnvironmentVariable("GENERIC_BOT_APPLICATION_ID")!;
+var appConfiguration =
+    new AppConfiguration(token)
+    {
+        Intents = [GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES],
+        ApplicationId = long.Parse(applicationId),
+        BotPrefix = '?'
+    };
+
+// Tratar os lifetimes, por padrão é InstancePerDependency (uma nova toda vez que é resolvida)
+app.UseDependencyInjection(appConfiguration).WithHttpClient();
+await app.RunAsync(appConfiguration);
