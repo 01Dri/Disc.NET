@@ -1,4 +1,8 @@
 ﻿using Disc.NET.Client.SDK.Messages;
+using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Client.SDK.Messages.Components.Builders;
+using Disc.NET.Client.SDK.Messages.Components.Builders.ComponentBuilders;
+using Disc.NET.Client.SDK.Messages.Components.Buttons;
 using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
@@ -42,6 +46,19 @@ namespace GenericBot
                 MessageFlags = new()
                 {
                     MessageFlag.Ephemeral
+                },
+                Components = new()
+                {
+					MessageComponentBuilder.WithActionRow()
+				        .AddButton(new ButtonComponent(ButtonStyle.Link)
+				        {
+					        Label = "🌐 Open-Meteo",
+					        Url = "https://open-meteo.com",
+				        }).AddButton(new ButtonComponent(ButtonStyle.Success)
+				        {
+					        CustomId = "refresh_weather",
+					        Label = "🔄 Atualizar",
+				        })
                 },
                 Embeds = new List<Embed>()
                 {
@@ -107,7 +124,7 @@ namespace GenericBot
                         {
                             Text = "Dados meteorológicos fornecidos por Open-Meteo",
                             IconUrl = "https://i.imgur.com/Qp9ZQpD.png"
-                        }
+                        },
                     }
                 }
             };
@@ -121,7 +138,21 @@ namespace GenericBot
 
             return true;
         }
-    }
+
+        private ActionRowComponentBuilder CreateActionRow()
+        {
+            return MessageComponentBuilder.WithActionRow()
+                   .AddButton(new ButtonComponent(ButtonStyle.Link)
+                   {
+                       Label = "🌐 Open-Meteo",
+                       Url = "https://open-meteo.com",
+                   }).AddButton(new ButtonComponent(ButtonStyle.Success)
+                   {
+                       CustomId = "refresh_weather",
+                       Label = "🔄 Atualizar",
+                   });
+		}
+	}
 
     public class WeatherResponse
     {
