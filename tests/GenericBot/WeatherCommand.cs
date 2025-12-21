@@ -1,15 +1,13 @@
-﻿using Disc.NET.Client.SDK.Messages;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
-using Disc.NET.Client.SDK.Messages.Components.Builders;
-using Disc.NET.Client.SDK.Messages.Components.Builders.ComponentBuilders;
-using Disc.NET.Client.SDK.Messages.Components.Buttons;
+using Disc.NET.Client.SDK.Messages.Components.Selects;
 using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Enums;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace GenericBot
 {
@@ -24,7 +22,7 @@ namespace GenericBot
         }
 
 
-        public async Task<bool> RunAsync(InteractionContext context, SlashCommandParamsResult @params)
+        public async Task RunAsync(InteractionContext context, SlashCommandParamsResult @params)
         {
 
             var weatherApi =
@@ -32,127 +30,231 @@ namespace GenericBot
 
             var response = await _httpClient.GetAsync(weatherApi);
 
-            if (!response.IsSuccessStatusCode)
-                return false;
-
             var content = await response.Content.ReadAsStringAsync();
             var weatherResponse = JsonSerializer.Deserialize<WeatherResponse>(content);
 
             var current = weatherResponse?.Current;
             var units = weatherResponse?.CurrentUnits;
 
-            var message = new ApiMessage()
+            //var actionWithButtons = new ActionRowButtonComponentBuilder()
+            // .AddButton(new ButtonComponent(ButtonStyle.Link)
+            // {
+            //  Label = "🌐 Open-Meteo",
+            //  Url = "https://open-meteo.com"
+            // });
+
+
+            var actionRowWithSelectMenu = new ActionRowSelectMenuComponentBuilder()
+                .AddMenu(new StringSelectComponent
+                {
+                    CustomId = "weather_options1",
+                    Placeholder = "📊 Ver detalhes",
+                    MinValues = 1,
+                    MaxValues = 1,
+                    Options =
+                    [
+                        new StringSelectOption
+                        {
+                            Label = "Temperatura por hora",
+                            Value = "hourly_temperature",
+                            Description = "Veja a variação da temperatura"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Umidade relativa",
+                            Value = "hourly_humidity",
+                            Description = "Dados de umidade do ar"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Velocidade do vento",
+                            Value = "hourly_wind",
+                            Description = "Informações de vento"
+                        }
+                    ]
+                })
+                .AddMenu(new StringSelectComponent
+                {
+                    CustomId = "weather_options2",
+                    Placeholder = "📊 Ver detalhes",
+                    MinValues = 1,
+                    MaxValues = 1,
+                    Options =
+                    [
+                        new StringSelectOption
+                        {
+                            Label = "Temperatura por hora",
+                            Value = "hourly_temperature",
+                            Description = "Veja a variação da temperatura"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Umidade relativa",
+                            Value = "hourly_humidity",
+                            Description = "Dados de umidade do ar"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Velocidade do vento",
+                            Value = "hourly_wind",
+                            Description = "Informações de vento"
+                        }
+                    ]
+                })
+                .AddMenu(new StringSelectComponent
+                {
+                    CustomId = "weather_options3",
+                    Placeholder = "📊 Ver detalhes",
+                    MinValues = 1,
+                    MaxValues = 1,
+                    Options =
+                    [
+                        new StringSelectOption
+                        {
+                            Label = "Temperatura por hora",
+                            Value = "hourly_temperature",
+                            Description = "Veja a variação da temperatura"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Umidade relativa",
+                            Value = "hourly_humidity",
+                            Description = "Dados de umidade do ar"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Velocidade do vento",
+                            Value = "hourly_wind",
+                            Description = "Informações de vento"
+                        }
+                    ]
+                })
+                .AddMenu(new StringSelectComponent
+                {
+                    CustomId = "weather_options4",
+                    Placeholder = "📊 Ver detalhes",
+                    MinValues = 1,
+                    MaxValues = 1,
+                    Options =
+                    [
+                        new StringSelectOption
+                        {
+                            Label = "Temperatura por hora",
+                            Value = "hourly_temperature",
+                            Description = "Veja a variação da temperatura"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Umidade relativa",
+                            Value = "hourly_humidity",
+                            Description = "Dados de umidade do ar"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Velocidade do vento",
+                            Value = "hourly_wind",
+                            Description = "Informações de vento"
+                        }
+                    ]
+                })
+                .AddMenu(new StringSelectComponent
+                {
+                    CustomId = "weather_options5",
+                    Placeholder = "📊 Ver detalhes",
+                    MinValues = 1,
+                    MaxValues = 1,
+                    Options =
+                    [
+                        new StringSelectOption
+                        {
+                            Label = "Temperatura por hora",
+                            Value = "hourly_temperature",
+                            Description = "Veja a variação da temperatura"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Umidade relativa",
+                            Value = "hourly_humidity",
+                            Description = "Dados de umidade do ar"
+                        },
+                        new StringSelectOption
+                        {
+                            Label = "Velocidade do vento",
+                            Value = "hourly_wind",
+                            Description = "Informações de vento"
+                        }
+                    ]
+                });
+            var embed = new Embed
             {
-                MessageFlags = new()
+                Title = "🌤️ Clima Atual",
+                Description = $"Previsão meteorológica atualizada para a região solicitada.\n\n" +
+                              $"🕒 **Atualizado em:** {current.Time}",
+                Color = 0x4AA8FF,
+                Timestamp = DateTime.UtcNow.ToString("o"),
+
+                Author = new EmbedAuthor
                 {
-                    MessageFlag.Ephemeral
+                    Name = "Open-Meteo",
+                    Url = "https://open-meteo.com"
                 },
-                Components = new()
+
+                Thumbnail = new EmbedImage
                 {
-					MessageComponentBuilder.WithActionRow()
-				        .AddButton(new ButtonComponent(ButtonStyle.Link)
-				        {
-					        Label = "🌐 Open-Meteo",
-					        Url = "https://open-meteo.com",
-				        }).AddButton(new ButtonComponent(ButtonStyle.Success)
-				        {
-					        CustomId = "refresh_weather",
-					        Label = "🔄 Atualizar",
-				        })
+                    Url = "https://i.imgur.com/8fK4h6X.png"
                 },
-                Embeds = new List<Embed>()
+
+                Fields = new List<EmbedField>
                 {
-                    new Embed()
+                    new EmbedField
                     {
-                        Title = "🌤️ Clima Atual",
-                        Description = "Previsão atualizada para a região solicitada.",
-                        Color = 0x4AA8FF,
-                        Timestamp = DateTime.UtcNow.ToString("o"),
-
-                        Thumbnail = new EmbedImage
-                        {
-                            Url = "https://i.imgur.com/8fK4h6X.png"
-                        },
-
-                        Author = new EmbedAuthor
-                        {
-                            Name = "Open-Meteo API",
-                            Url = "https://open-meteo.com"
-                        },
-
-                        Fields = new List<EmbedField>
-                        {
-                            new EmbedField
-                            {
-                                Name = "🌡️ Temperatura",
-                                Value = $"{current?.Temperature2m} {units?.Temperature2m}",
-                                Inline = true
-                            },
-                            new EmbedField
-                            {
-                                Name = "💨 Vento",
-                                Value = $"{current?.WindSpeed10m} {units?.WindSpeed10m}",
-                                Inline = true
-                            },
-                            new EmbedField
-                            {
-                                Name = "📍 Localização",
-                                Value = $"Lat: **{weatherResponse?.Latitude}**, Lon: **{weatherResponse?.Longitude}**",
-                                Inline = false
-                            },
-                            new EmbedField
-                            {
-                                Name = "🕒 Timezone",
-                                Value = $"{weatherResponse?.Timezone} ({weatherResponse?.TimezoneAbbreviation})",
-                                Inline = true
-                            },
-                            new EmbedField
-                            {
-                                Name = "⏱️ Intervalo",
-                                Value = $"{current?.Interval} segundos",
-                                Inline = true
-                            },
-                            new EmbedField
-                            {
-                                Name = "🗓️ Última atualização",
-                                Value = current?.Time ?? "N/A",
-                                Inline = false
-                            }
-                        },
-
-                        Footer = new EmbedFooter
-                        {
-                            Text = "Dados meteorológicos fornecidos por Open-Meteo",
-                            IconUrl = "https://i.imgur.com/Qp9ZQpD.png"
-                        },
+                        Name = "🌡️ Temperatura",
+                        Value = $"**{current.Temperature2m} {units.Temperature2m}**",
+                        Inline = true
+                    },
+                    new EmbedField
+                    {
+                        Name = "💨 Vento",
+                        Value = $"**{current.WindSpeed10m} {units.WindSpeed10m}**",
+                        Inline = true
+                    },
+                    new EmbedField
+                    {
+                        Name = "📍 Localização",
+                        Value = $"Lat: **{weatherResponse.Latitude}**\n" +
+                                $"Lon: **{weatherResponse.Longitude}**",
+                        Inline = false
+                    },
+                    new EmbedField
+                    {
+                        Name = "🗺️ Timezone",
+                        Value = $"{weatherResponse.Timezone} ({weatherResponse.TimezoneAbbreviation})",
+                        Inline = true
+                    },
+                    new EmbedField
+                    {
+                        Name = "⏱️ Intervalo",
+                        Value = $"{current.Interval} segundos",
+                        Inline = true
                     }
+                },
+
+                Footer = new EmbedFooter
+                {
+                    Text = "Dados meteorológicos fornecidos por Open-Meteo"
                 }
             };
 
-            //var channelId = context.Channel?.Id;
-
-            //if (!string.IsNullOrEmpty(channelId))
-            //    await UseClient().SendMessageAsync(channelId, message);
+            var message = new ApiMessage
+            {
+                Embeds = [embed],
+                Components = [actionRowWithSelectMenu]
+            };
 
             await context.Response.SendMessageAsync(message, CancellationToken.None);
-
-            return true;
         }
 
-        private ActionRowComponentBuilder CreateActionRow()
-        {
-            return MessageComponentBuilder.WithActionRow()
-                   .AddButton(new ButtonComponent(ButtonStyle.Link)
-                   {
-                       Label = "🌐 Open-Meteo",
-                       Url = "https://open-meteo.com",
-                   }).AddButton(new ButtonComponent(ButtonStyle.Success)
-                   {
-                       CustomId = "refresh_weather",
-                       Label = "🔄 Atualizar",
-                   });
-		}
-	}
+    }
 
     public class WeatherResponse
     {

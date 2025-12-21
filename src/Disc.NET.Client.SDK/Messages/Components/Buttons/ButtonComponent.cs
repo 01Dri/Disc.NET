@@ -2,7 +2,7 @@
 
 namespace Disc.NET.Client.SDK.Messages.Components.Buttons
 {
-    public class ButtonComponent
+    public class ButtonComponent : IMessageComponent
     {
         public MessageComponentType Type  => MessageComponentType.Button;
         public string? Id { get; set; }

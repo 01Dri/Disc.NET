@@ -9,7 +9,7 @@ namespace GenericBot
     public class PrefixPrefixCommandTest : IPrefixCommand
     {
 
-        public async Task<bool> RunAsync(CommandContext context, List<string> @params)
+        public async Task RunAsync(CommandContext context, List<string> @params)
         {
             await context.Response.SendMessageAsync(new ApiMessage()
             {
@@ -23,9 +23,7 @@ namespace GenericBot
                     }
                 ]
             });
-            return true;
         }
 
     }
-
 }

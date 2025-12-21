@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Disc.NET.Shared.Builders
+namespace Disc.NET.Client.SDK.Messages.Components
 {
-    internal class MessageBuilder
-    {
-    }
+	public interface IMessageComponent;
 }
