@@ -1,13 +1,12 @@
-﻿using Autofac;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Shared.Enums;
 
 
 namespace Disc.NET.Shared.Configurations
 {
-    public class AppConfiguration
+    public sealed class AppConfiguration
     {
-        public  string Token { get; }
-        public char BotPrefix { get; init;  }
+        public string Token { get; }
+        public char BotPrefix { get; init; }
         public required long ApplicationId { get; init; }
         public bool UseContainer { get; set; }
         public List<GatewayIntent> Intents { get; init; } = new()

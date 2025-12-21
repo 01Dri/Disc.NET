@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text;
+﻿using System.Text;
 using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Shared.Configurations;
@@ -8,9 +7,10 @@ using Disc.NET.Shared.Serializer;
 
 namespace Disc.NET.Client.SDK;
 
-public class Client : ClientBase, IClient
+public sealed class Client : ClientBase, IClient
 {
     private readonly AppConfiguration _appConfiguration;
+    private readonly DiscNetSerializer _serializer = DiscNetSerializer.GetInstance();
     public Client(AppConfiguration appConfiguration, HttpClient client) : base(appConfiguration, client)
     {
         _appConfiguration = appConfiguration;
@@ -23,7 +23,6 @@ public class Client : ClientBase, IClient
 
     public async Task<ApiMessage?> GetMessageAsync(string channelId, string messageId, CancellationToken cancellation = default)
     {
-        var serializer = DiscNetSerializer.GetInstance();
 
         var response = await HttpClient.GetAsync($"channels/{channelId}/messages/{messageId}", cancellation)
             .ConfigureAwait(false);
@@ -33,7 +32,7 @@ public class Client : ClientBase, IClient
             throw new DiscNetClientSdkException(error, response.StatusCode);
         }
         var content = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false);
-        return await serializer.DeserializeAsync<ApiMessage>(content, cancellation).ConfigureAwait(false);
+        return await _serializer.DeserializeAsync<ApiMessage>(content, cancellation).ConfigureAwait(false);
     }
 
     public async Task RegisterGlobalSlashCommandAsync(string commandJson, CancellationToken cancellation = default)
@@ -57,8 +56,7 @@ public class Client : ClientBase, IClient
 
     private async Task SendMessageAsync(ApiMessage message, string channelId, CancellationToken cancellation = default)
     {
-	    var serializer = DiscNetSerializer.GetInstance();
-	    var messageJson = serializer.Serialize(message);
+        var messageJson = _serializer.Serialize(message);
         var content = new StringContent(messageJson, Encoding.UTF8, "application/json");
         var response = await HttpClient.PostAsync($"channels/{channelId}/messages", content, cancellation).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
