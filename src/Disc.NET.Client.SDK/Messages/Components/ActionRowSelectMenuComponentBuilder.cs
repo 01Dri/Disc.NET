@@ -1,9 +1,8 @@
 ﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
-using Disc.NET.Client.SDK.Messages.Components.Selects;
 
 namespace Disc.NET.Client.SDK.Messages.Components
 {
-    public class ActionRowSelectMenuComponentBuilder : IMessageComponentBuilder
+    public sealed class ActionRowSelectMenuComponentBuilder : IMessageComponentBuilder
     {
 
         public ActionRowSelectMenuComponentBuilder()
@@ -17,12 +16,12 @@ namespace Disc.NET.Client.SDK.Messages.Components
 
         public ActionRowSelectMenuComponentBuilder AddMenu(IMessageComponent component)
         {
-	        Components.Add(component);
+            Components.Add(component);
             return this;
         }
 
 
-		public string? Id { get; set; }
+        public string? Id { get; set; }
         public List<object> Components { get; } = [];
 
         public object Build()
@@ -32,7 +31,7 @@ namespace Disc.NET.Client.SDK.Messages.Components
                 id = Id,
                 type = MessageComponentType.ActionRow,
                 components = Components
-			};
+            };
         }
     }
 

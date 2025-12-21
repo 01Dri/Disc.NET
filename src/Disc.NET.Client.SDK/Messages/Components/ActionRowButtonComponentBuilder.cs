@@ -1,9 +1,8 @@
-﻿using Disc.NET.Client.SDK.Messages.Components.Buttons;
-using Disc.NET.Client.SDK.Messages.Components.Enums;
+﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
 
 namespace Disc.NET.Client.SDK.Messages.Components
 {
-    public class ActionRowButtonComponentBuilder : IMessageComponentBuilder
+    public sealed class ActionRowButtonComponentBuilder : IMessageComponentBuilder
     {
         public string? Id { get; }
         public List<object> Components { get; } = [];
@@ -19,23 +18,23 @@ namespace Disc.NET.Client.SDK.Messages.Components
 
         public ActionRowButtonComponentBuilder AddButton(IMessageComponent component)
         {
-	        Components.Add(component);
+            Components.Add(component);
             return this;
         }
 
         public ActionRowButtonComponentBuilder AddButtons(List<IMessageComponent> components)
         {
-	        Components.AddRange(components);
-	        return this;
+            Components.AddRange(components);
+            return this;
         }
-		public object Build()
+        public object Build()
         {
             return new
             {
                 id = Id,
                 type = MessageComponentType.ActionRow,
                 components = Components
-			};
+            };
         }
     }
 }
