@@ -28,15 +28,16 @@ public class ApiMessage
 
     public List<object> MountComponents()
     {
-        var results = new List<object>();
+	    if (Components.Count > 5)
+		    throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
+
+		var results = new List<object>();
+
         NormalizeActionRows<ActionRowSelectMenuComponentBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
             new ActionRowSelectMenuComponentBuilder().AddMenu(message.First()));
 
         NormalizeActionRows<ActionRowButtonComponentBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
             new ActionRowButtonComponentBuilder().AddButtons(message));
-
-        if (Components.Count > 5)
-	        throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
 
 		Components.ForEach(x => results.Add(x.Build()));
         return results;
