@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.Json;
 using Autofac;
 using Autofac.Core;
+using Disc.NET.Commands.Responses;
 using Disc.NET.Configuration;
 
 namespace Disc.NET.Handlers
@@ -68,7 +69,8 @@ namespace Disc.NET.Handlers
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Response = new CommandResponse(appConfiguration)
             {
-                ChannelId = context.ChannelId
+                ChannelId = context.ChannelId,
+                MessageId = context.Id
             };
             return context;
         }

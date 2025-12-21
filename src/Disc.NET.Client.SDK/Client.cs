@@ -89,7 +89,9 @@ public class Client : ClientBase, IClient
             apiMessage.Content,
             apiMessage.Embeds,
             apiMessage.Flags,
-            Components = apiMessage.MountComponents()
+            apiMessage.Type,
+            apiMessage.MessageReference,
+			Components = apiMessage.MountComponents()
         };
 
         return serializer.Serialize(message);

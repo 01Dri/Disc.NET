@@ -1,8 +1,5 @@
-﻿using Disc.NET.Client.SDK;
-using Disc.NET.Client.SDK.Interfaces;
-using Disc.NET.Client.SDK.Messages;
-using Disc.NET.Commands.Contexts.Models;
-using Disc.NET.Shared.Configurations;
+﻿using Disc.NET.Commands.Contexts.Models;
+using Disc.NET.Commands.Responses;
 
 namespace Disc.NET.Commands.Contexts
 {
@@ -16,17 +13,6 @@ namespace Disc.NET.Commands.Contexts
         public int Context { get; set; }
 
         public InteractionResponse Response { get; set; }
-    }
-
-    public class InteractionResponse(AppConfiguration appConfiguration)
-    {
-        private readonly IClient _client = ClientSingleton.GetInstance(appConfiguration);
-        public string ChannelId { get; set; } = string.Empty;
-
-        public async Task SendMessageAsync(ApiMessage message, CancellationToken cancellation = default)
-        {
-            await _client.SendMessageAsync(ChannelId, message, cancellation);
-        }
     }
 
 }

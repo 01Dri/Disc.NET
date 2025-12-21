@@ -9,6 +9,7 @@ namespace Disc.NET.Client.SDK.Messages;
 
 public class ApiMessage
 {
+    public string? MessageId { get; set; }
     public string Content { get; set; } = string.Empty;
     public List<Embed> Embeds { get; set; } = [];
 
@@ -19,6 +20,10 @@ public class ApiMessage
 
     [JsonIgnore]
     public List<IMessageComponentBuilder> Components { get; set; } = [];
+
+    public int? Type { get; set; }
+
+    public ApiMessage? MessageReference { get; set; }
 
     public List<object> MountComponents()
     {
