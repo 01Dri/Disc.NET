@@ -80,10 +80,6 @@ public class Client : ClientBase, IClient
 
     private static string GetApiMessageJson(ApiMessage apiMessage, DiscNetSerializer serializer)
     {
-        if (apiMessage.Components.Count > 5)
-        {
-            throw new DiscNetClientSdkException("A mensagem não pode conter mais de 5 componentes de nível superior.", HttpStatusCode.BadRequest);
-        }
         var message = new
         {
             apiMessage.Content,

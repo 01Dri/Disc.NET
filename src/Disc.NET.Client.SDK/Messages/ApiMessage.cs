@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Net;
+using System.Text.Json.Serialization;
 using Disc.NET.Client.SDK.Messages.Components;
 using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Shared.Constraints;
@@ -34,7 +35,10 @@ public class ApiMessage
         NormalizeActionRows<ActionRowButtonComponentBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
             new ActionRowButtonComponentBuilder().AddButtons(message));
 
-        Components.ForEach(x => results.Add(x.Build()));
+        if (Components.Count > 5)
+	        throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
+
+		Components.ForEach(x => results.Add(x.Build()));
         return results;
     }
 
