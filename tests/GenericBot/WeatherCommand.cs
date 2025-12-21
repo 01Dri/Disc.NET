@@ -248,7 +248,7 @@ namespace GenericBot
             var message = new ApiMessage
             {
                 Embeds = [embed],
-                Components = [actionRowWithSelectMenu]
+                MessageComponents = [actionRowWithSelectMenu]
             };
 
             await context.Response.SendMessageAsync(message, CancellationToken.None);

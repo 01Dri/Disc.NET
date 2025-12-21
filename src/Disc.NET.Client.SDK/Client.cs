@@ -57,7 +57,8 @@ public class Client : ClientBase, IClient
 
     private async Task SendMessageAsync(ApiMessage message, string channelId, CancellationToken cancellation = default)
     {
-        var messageJson = GetApiMessageJson(message, DiscNetSerializer.GetInstance());
+	    var serializer = DiscNetSerializer.GetInstance();
+	    var messageJson = serializer.Serialize(message);
         var content = new StringContent(messageJson, Encoding.UTF8, "application/json");
         var response = await HttpClient.PostAsync($"channels/{channelId}/messages", content, cancellation).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
@@ -78,18 +79,4 @@ public class Client : ClientBase, IClient
         }
     }
 
-    private static string GetApiMessageJson(ApiMessage apiMessage, DiscNetSerializer serializer)
-    {
-        var message = new
-        {
-            apiMessage.Content,
-            apiMessage.Embeds,
-            apiMessage.Flags,
-            apiMessage.Type,
-            apiMessage.MessageReference,
-			Components = apiMessage.MountComponents()
-        };
-
-        return serializer.Serialize(message);
-    }
 }

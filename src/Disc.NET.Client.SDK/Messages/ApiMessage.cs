@@ -20,15 +20,17 @@ public class ApiMessage
     public long Flags => MessageFlags?.Aggregate(0L, (current, flag) => current | (long)flag) ?? 0L;
 
     [JsonIgnore]
-    public List<IMessageComponentBuilder> Components { get; set; } = [];
+    public List<IMessageComponentBuilder> MessageComponents { get; set; } = [];
 
-    public int? Type { get; set; }
+    public List<object> Components => MountComponents();   
+
+	public int? Type { get; set; }
 
     public ApiMessage? MessageReference { get; set; }
 
-    public List<object> MountComponents()
+    private List<object> MountComponents()
     {
-	    if (Components.Count > 5)
+	    if (MessageComponents.Count > 5)
 		    throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
 
 		var results = new List<object>();
@@ -39,7 +41,7 @@ public class ApiMessage
         NormalizeActionRows<ActionRowButtonComponentBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
             new ActionRowButtonComponentBuilder().AddButtons(message));
 
-		Components.ForEach(x => results.Add(x.Build()));
+		MessageComponents.ForEach(x => results.Add(x.Build()));
         return results;
     }
 
@@ -66,7 +68,7 @@ public class ApiMessage
     /// - Insufficient available action row slots to split invalid rows
     /// </exception>
     /// <remarks>
-    /// This method mutates the <see cref="Components"/> collection by:
+    /// This method mutates the <see cref="MessageComponents"/> collection by:
     /// - Removing excess components from invalid action rows
     /// - Adding newly created action rows to the message
     /// </remarks>
@@ -75,7 +77,7 @@ public class ApiMessage
         Func<List<IMessageComponent>, IMessageComponentBuilder> createBuilderFunc)
         where T : IMessageComponentBuilder
     {
-        var actionRows = Components.Where(x => x is T).ToList();
+        var actionRows = MessageComponents.Where(x => x is T).ToList();
 
         if (actionRows.Count == 0) return;
         int actionRowsPerMessage = ActionRowConstraint.MAX_ACTION_ROWS_PER_MESSAGE;
@@ -86,7 +88,7 @@ public class ApiMessage
                 $"The message cannot contain more than {actionRowsPerMessage} top-level components.");
         }
 
-        int availableActionRowSlots = actionRowsPerMessage - Components.Count;
+        int availableActionRowSlots = actionRowsPerMessage - MessageComponents.Count;
         var invalidActionRows = actionRows.Where(x => x.Components.Count > quantityComponentPerActionRow).ToList();
         var containsActionRowsInvalids = invalidActionRows.Count > 0;
 
@@ -149,7 +151,7 @@ public class ApiMessage
                     newActionRow = createBuilderFunc.Invoke([component]);
                 }
 
-                Components.Add(newActionRow);
+                MessageComponents.Add(newActionRow);
                 newActionRowsCount++;
             }
         }
