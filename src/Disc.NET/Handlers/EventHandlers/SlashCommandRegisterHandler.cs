@@ -13,15 +13,11 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson,
-            AppConfiguration configuration)
-        {
-            if (@event != GatewayEvent.Ready)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+        public GatewayEvent GetEventType()
+            => GatewayEvent.Ready;
 
+        public async Task HandleAsync(JsonDocument contextJson,AppConfiguration configuration)
+        {
             List<SlashCommandAttribute> attributes = GetCommandAttributes<SlashCommandAttribute>();
             foreach (var attribute in attributes)
             {

@@ -14,39 +14,19 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson, AppConfiguration configuration)
+        public GatewayEvent GetEventType()
+            => GatewayEvent.MessageCreate;
+
+        public async Task HandleAsync(JsonDocument contextJson, AppConfiguration configuration)
         {
-            if (@event != GatewayEvent.MessageCreate)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
             var content = contextJson.GetStringProperty("content");
-            if (string.IsNullOrEmpty(content))
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+            if (string.IsNullOrEmpty(content)) return;
             var commandModel = BuildCommandModelByEventContent(content);
-            if (commandModel.Prefix != configuration.BotPrefix)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
             var command = (IPrefixCommand)
                 GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name);
-
-            if (command == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
+            if (command == null) return;
             var context = BuildCommandContext(contextJson, configuration);
             await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
         }
-
     }
 }

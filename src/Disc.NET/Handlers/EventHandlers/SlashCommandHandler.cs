@@ -14,32 +14,20 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson,
-            AppConfiguration configuration)
-        {
-            if (@event != GatewayEvent.InteractionCreate)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
 
+        public GatewayEvent GetEventType()
+            => GatewayEvent.InteractionCreate;
+
+        public async Task HandleAsync(JsonDocument contextJson,AppConfiguration configuration)
+        {
             var data = contextJson.GetJsonStringProperty("data");
+            if (string.IsNullOrEmpty(data)) return;
             var slashCommandResult = Serializer.Deserialize<SlashCommandParamsResult>(data);
-            if (slashCommandResult == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+            if (slashCommandResult == null) return;
             var command = (ISlashCommand)
                 GetCommandByAttribute<SlashCommandAttribute, InteractionContext>(slashCommandResult.Name);
-            if (command == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
+            if (command == null) return;
             var context = BuildInteractionContext(contextJson, configuration);
-
             await SendInteractionResponseAsync(contextJson);
             await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);
 
