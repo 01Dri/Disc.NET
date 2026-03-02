@@ -19,8 +19,8 @@ namespace Disc.NET
             {
                 DiscNetContainer.GetInstance().RegisterDependencies();
             }
-            var gateway = new GatewayConnection(_logger);
-            await gateway.ConnectAsync(configuration);
+            var gateway = new GatewayConnection(configuration,_logger);
+            await gateway.ConnectAsync();
         }
 
         public App WithDebugLogger()
