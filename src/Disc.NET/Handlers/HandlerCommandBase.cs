@@ -1,14 +1,13 @@
-﻿using Disc.NET.Commands;
+﻿using Autofac;
+using Disc.NET.Commands;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
+using Disc.NET.Commands.Responses;
+using Disc.NET.Configuration;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
-using Autofac;
-using Autofac.Core;
-using Disc.NET.Commands.Responses;
-using Disc.NET.Configuration;
 
 namespace Disc.NET.Handlers
 {
