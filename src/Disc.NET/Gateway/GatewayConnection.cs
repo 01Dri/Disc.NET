@@ -1,4 +1,5 @@
 ﻿using Disc.NET.Dispatcher;
+using Disc.NET.Handlers.EventHandlers;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using Disc.NET.Shared.Extensions;
@@ -124,23 +125,35 @@ namespace Disc.NET.Gateway
                     continue;
                 }
 
-                var eventType = eventName.ToGatewayEventType();
-                if (!Enum.IsDefined(eventType))
+                var eventType = eventName.ToEnum<GatewayEvent>();
+                if (eventType == null)
+                {
+                    _logger.LogDebug("Received message with unrecognized event name: {Event}", eventName);
+                    continue;
+                }
+                var eventTypeValue = eventType.Value;
+                if (!Enum.IsDefined(eventTypeValue))
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
                 }
 
-                if (eventType == GatewayEvent.Ready)
+                if (eventTypeValue == GatewayEvent.Ready)
                 {
                     _logger.LogInformation("Bot is connected and ready!");
                 }
 
                 var eventContextData = message.GetEventContextData();
+                var messageType = eventContextData.GetIntProperty("type");
+                var messageTypeEnum = messageType.ToEnum<MessageType>();
+                if (messageTypeEnum == null)
+                {
+                    messageTypeEnum = MessageType.None;
+                }
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
                 _logger.LogDebug("Event context: {Event}", DiscNetSerializer.GetInstance().Serialize(eventContextData));
-
-                await _eventDispatcher.DispatchAsync(new EventHandlerPayload(eventType, eventContextData));
+                
+                await _eventDispatcher.DispatchAsync(new EventHandlerPayload(eventTypeValue, messageTypeEnum.Value, eventContextData));
             }
         }
 
