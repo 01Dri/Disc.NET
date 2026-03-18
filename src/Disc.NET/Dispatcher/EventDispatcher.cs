@@ -27,15 +27,16 @@ namespace Disc.NET.Dispatcher
             var handlers = _handlers.Where(x => x.GetEventType() == eventType).ToList();
             foreach (var handler in handlers)
             {
-                await handler.HandleAsync(payload.Data, _appConfiguration);
+                await handler.HandleAsync(payload, _appConfiguration);
             }
         }
     }
 
-    internal class EventHandlerPayload(GatewayEvent eventType, JsonDocument data)
+    internal class EventHandlerPayload(GatewayEvent eventType,MessageType messageType, JsonDocument data)
     {
         public GatewayEvent EventType { get; } = eventType;
         public JsonDocument Data { get; } = data;
+        public MessageType MessageType { get; } = messageType;
 
     }
 }
