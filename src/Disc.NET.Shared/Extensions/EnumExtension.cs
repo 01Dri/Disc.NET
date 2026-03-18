@@ -18,24 +18,58 @@ namespace Disc.NET.Shared.Extensions
             return value.ToString();
         }
 
-        public static GatewayEvent ToGatewayEventType(this string eventStr)
+        //public static GatewayEvent ToGatewayEventType(this string eventStr)
+        //{
+        //    if (string.IsNullOrWhiteSpace(eventStr))
+        //        return GatewayEvent.None;
+
+        //    var normalized = eventStr.Trim();
+
+        //    if (Enum.TryParse(typeof(GatewayEvent), normalized, ignoreCase: true, out var directMatch))
+        //        return (GatewayEvent)directMatch;
+
+        //    foreach (var field in typeof(GatewayEvent).GetFields(BindingFlags.Public | BindingFlags.Static))
+        //    {
+        //        var attr = field.GetCustomAttribute<DescriptionAttribute>();
+        //        if (attr != null && string.Equals(attr.Description, normalized, StringComparison.OrdinalIgnoreCase))
+        //            return (GatewayEvent)field.GetValue(null)!;
+        //    }
+
+        //    return GatewayEvent.None;
+        //}
+
+        public static T? ToEnum<T>(this string eventStr) where T : struct, Enum
         {
             if (string.IsNullOrWhiteSpace(eventStr))
-                return GatewayEvent.None;
+                return null;
 
             var normalized = eventStr.Trim();
 
-            if (Enum.TryParse(typeof(GatewayEvent), normalized, ignoreCase: true, out var directMatch))
-                return (GatewayEvent)directMatch;
+            if (Enum.TryParse<T>(normalized, true, out var directMatch))
+                return directMatch;
 
-            foreach (var field in typeof(GatewayEvent).GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 var attr = field.GetCustomAttribute<DescriptionAttribute>();
-                if (attr != null && string.Equals(attr.Description, normalized, StringComparison.OrdinalIgnoreCase))
-                    return (GatewayEvent)field.GetValue(null)!;
+
+                if (attr != null &&
+                    string.Equals(attr.Description, normalized, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (T)field.GetValue(null)!;
+                }
             }
 
-            return GatewayEvent.None;
+            return null;
+        }
+
+
+        public static T? ToEnum<T>(this int? value) where T : struct, Enum
+        {
+            if (value == null) return null;
+            if (Enum.IsDefined(typeof(T), value))
+                return (T)Enum.ToObject(typeof(T), value);
+
+            return null;
         }
 
         public static int  GetIntIntents(this IEnumerable<GatewayIntent> intents)
