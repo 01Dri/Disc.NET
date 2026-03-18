@@ -1,4 +1,5 @@
 ﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
+using System.Text.Json.Serialization;
 
 namespace Disc.NET.Client.SDK.Messages.Components.Buttons
 {
@@ -17,9 +18,13 @@ namespace Disc.NET.Client.SDK.Messages.Components.Buttons
 
         public bool Disabled { get; set; }
 
-        public ButtonComponent(ButtonStyle style)
+        [JsonIgnore]
+        public Func<bool> Callback { get; set; }
+
+        public ButtonComponent(ButtonStyle style, string customId)
         {
 			Style = style;
+            CustomId = customId;
         }
 
     }

@@ -16,6 +16,7 @@ namespace Disc.NET.Client.SDK.Messages.Components.Selects
         public int? MinValues { get; set; }
         public int? MaxValues { get; set; }
         public bool? Disabled { get; set; }
+        public Func<bool> Callback { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 
     public class StringSelectOption
