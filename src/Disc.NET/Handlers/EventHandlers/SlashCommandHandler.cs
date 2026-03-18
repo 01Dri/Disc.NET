@@ -1,10 +1,11 @@
 ﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
+using Disc.NET.Dispatcher;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
-using System.Text.Json;
 using Disc.NET.Shared.Extensions;
+using System.Text.Json;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
@@ -18,17 +19,18 @@ namespace Disc.NET.Handlers.EventHandlers
         public GatewayEvent GetEventType()
             => GatewayEvent.InteractionCreate;
 
-        public async Task HandleAsync(JsonDocument contextJson,AppConfiguration configuration)
+        public async Task HandleAsync(EventHandlerPayload payload, AppConfiguration configuration)
         {
-            var data = contextJson.GetJsonStringProperty("data");
+            if (payload.MessageType != MessageType.ApplicationCommand) return;
+            var data = payload.Data.GetJsonStringProperty("data");
             if (string.IsNullOrEmpty(data)) return;
             var slashCommandResult = Serializer.Deserialize<SlashCommandParamsResult>(data);
             if (slashCommandResult == null) return;
             var command = (ISlashCommand)
                 GetCommandByAttribute<SlashCommandAttribute, InteractionContext>(slashCommandResult.Name);
             if (command == null) return;
-            var context = BuildInteractionContext(contextJson, configuration);
-            await SendInteractionResponseAsync(contextJson);
+            var context = BuildInteractionContext(payload.Data, configuration);
+            await SendInteractionResponseAsync(payload.Data);
             await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);
 
         }

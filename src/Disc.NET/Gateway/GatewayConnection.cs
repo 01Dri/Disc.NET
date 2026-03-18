@@ -1,5 +1,4 @@
 ﻿using Disc.NET.Dispatcher;
-using Disc.NET.Handlers.EventHandlers;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using Disc.NET.Shared.Extensions;

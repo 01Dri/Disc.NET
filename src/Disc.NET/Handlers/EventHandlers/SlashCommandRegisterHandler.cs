@@ -1,6 +1,7 @@
 ﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
+using Disc.NET.Dispatcher;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Enums;
 using System.Text.Json;
@@ -16,7 +17,7 @@ namespace Disc.NET.Handlers.EventHandlers
         public GatewayEvent GetEventType()
             => GatewayEvent.Ready;
 
-        public async Task HandleAsync(JsonDocument contextJson,AppConfiguration configuration)
+        public async Task HandleAsync(EventHandlerPayload payload, AppConfiguration configuration)
         {
             List<SlashCommandAttribute> attributes = GetCommandAttributes<SlashCommandAttribute>();
             foreach (var attribute in attributes)
