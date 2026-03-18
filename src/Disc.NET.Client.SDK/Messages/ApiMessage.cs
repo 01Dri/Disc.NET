@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using Disc.NET.Client.SDK.Messages.Components;
 using Disc.NET.Client.SDK.Messages.Embeds;
+using Disc.NET.Commands;
 using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Enums;
 using Disc.NET.Shared.Exceptions;
@@ -28,12 +29,13 @@ public class ApiMessage
 
     public ApiMessage? MessageReference { get; set; }
 
+
     private List<object> MountComponents()
     {
-	    if (MessageComponents.Count > 5)
-		    throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
+        if (MessageComponents.Count > 5)
+            throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
 
-		var results = new List<object>();
+        var results = new List<object>();
 
         NormalizeActionRows<ActionRowSelectMenuComponentBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
             new ActionRowSelectMenuComponentBuilder().AddMenu(message.First()));
@@ -41,7 +43,15 @@ public class ApiMessage
         NormalizeActionRows<ActionRowButtonComponentBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
             new ActionRowButtonComponentBuilder().AddButtons(message));
 
-		MessageComponents.ForEach(x => results.Add(x.Build()));
+        MessageComponents.ForEach(x =>
+        {
+            results.Add(x.Build());
+
+            x.Components.OfType<IMessageComponent>().Where(x => !string.IsNullOrEmpty(x.CustomId)).ToList().ForEach(component =>
+            {
+                ComponentsCallbacksRepository.Instance.SaveCallback(component.CustomId, component.Callback);
+            });
+        });
         return results;
     }
 

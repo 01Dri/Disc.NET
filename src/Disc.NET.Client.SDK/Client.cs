@@ -1,9 +1,9 @@
-﻿using System.Text;
-using Disc.NET.Client.SDK.Interfaces;
+﻿using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Exceptions;
 using Disc.NET.Shared.Serializer;
+using System.Text;
 
 namespace Disc.NET.Client.SDK;
 
