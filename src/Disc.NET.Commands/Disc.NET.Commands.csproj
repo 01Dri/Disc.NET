@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Disc.NET.Client.SDK\Disc.NET.Client.SDK.csproj" />
+    <ProjectReference Include="..\Disc.NET.Shared\Disc.NET.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using Disc.NET.Client.SDK;
 using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Shared.Configurations;
+using Disc.NET.Configuration;
 using Disc.NET.Shared.Serializer;
 using System.Text.Json;
 
@@ -13,7 +13,8 @@ internal abstract class HandlerBase<TContext> where TContext : IContext
     protected DiscNetSerializer Serializer;
     protected HandlerBase(AppConfiguration appConfiguration)
     {
-        Client = ClientSingleton.GetInstance(appConfiguration);
+        ClientSingleton.Configure(appConfiguration.Token, appConfiguration.ApplicationId);
+        Client = ClientSingleton.GetInstance();
         Serializer = DiscNetSerializer.GetInstance();
     }
     protected abstract CommandContext BuildCommandContext(JsonDocument contextJson, AppConfiguration appConfiguration);

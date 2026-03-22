@@ -4,7 +4,6 @@ using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Commands.Responses;
 using Disc.NET.Configuration;
-using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
@@ -66,7 +65,7 @@ namespace Disc.NET.Handlers
             context.Timestamp = contextJson.GetDateTimeProperty("timestamp");
             context.EditedTimestamp = contextJson.GetDateTimeProperty("edited_timestamp");
             context.Type = contextJson.GetIntProperty("type") ?? 0;
-            context.Response = new CommandResponse(appConfiguration)
+            context.Response = new CommandResponse()
             {
                 ChannelId = context.ChannelId,
                 MessageId = context.Id
@@ -94,7 +93,7 @@ namespace Disc.NET.Handlers
 
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Context = contextJson.GetIntProperty("context") ?? 0;
-            context.Response = new InteractionResponse(appConfiguration)
+            context.Response = new InteractionResponse()
             {
                 ChannelId = context.Channel?.Id ?? string.Empty,
             };

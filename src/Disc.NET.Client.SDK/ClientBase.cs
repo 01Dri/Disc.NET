@@ -1,21 +1,18 @@
-﻿using Disc.NET.Shared.Configurations;
-
-namespace Disc.NET.Client.SDK
+﻿namespace Disc.NET.Client.SDK
 {
     public abstract class ClientBase
     {
 
         protected readonly HttpClient HttpClient;
-        protected AppConfiguration AppConfiguration { get; }
+        protected ClientConfiguration ClientConfiguration { get; }
          
-
-        protected ClientBase(AppConfiguration appConfiguration, HttpClient client)
+        protected ClientBase(ClientConfiguration clientConfiguration, HttpClient client)
         {
-            AppConfiguration = appConfiguration;
+            ClientConfiguration = clientConfiguration;
             HttpClient = client;
             HttpClient.BaseAddress = new Uri("https://discord.com/api/v10/");
             HttpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", AppConfiguration.Token);
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", ClientConfiguration.Token);
         }
     }
 }

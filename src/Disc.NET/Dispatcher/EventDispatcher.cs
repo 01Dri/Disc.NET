@@ -1,6 +1,6 @@
-﻿using Disc.NET.Handlers;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Configuration;
+using Disc.NET.Enums;
+using Disc.NET.Handlers;
 using System.Reflection;
 using System.Text.Json;
 
@@ -27,15 +27,15 @@ namespace Disc.NET.Dispatcher
             var handlers = _handlers.Where(x => x.GetEventType() == eventType).ToList();
             foreach (var handler in handlers)
             {
-                await handler.HandleAsync(payload.Data, _appConfiguration);
+                await handler.HandleAsync(payload, _appConfiguration);
             }
         }
     }
 
-    internal class EventHandlerPayload(GatewayEvent eventType, JsonDocument data)
+    internal class EventHandlerPayload(GatewayEvent eventType, JsonDocument data, InteractionEventType interactionEventType)
     {
         public GatewayEvent EventType { get; } = eventType;
         public JsonDocument Data { get; } = data;
-
+        public InteractionEventType InteractionEventType { get; } = interactionEventType;
     }
 }

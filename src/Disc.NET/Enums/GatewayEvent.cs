@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Disc.NET.Shared.Enums
+namespace Disc.NET.Enums
 {
     internal enum GatewayEvent
     {

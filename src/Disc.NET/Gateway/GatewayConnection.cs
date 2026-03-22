@@ -1,6 +1,6 @@
-﻿using Disc.NET.Dispatcher;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
 using Disc.NET.Shared.Extensions;
 using Disc.NET.Shared.Serializer;
 using Microsoft.Extensions.Logging;
@@ -124,8 +124,15 @@ namespace Disc.NET.Gateway
                     continue;
                 }
 
-                var eventType = eventName.ToGatewayEventType();
-                if (!Enum.IsDefined(eventType))
+                var eventType = eventName.ToEnum<GatewayEvent>();
+                if (eventType == null) 
+                {
+                    _logger.LogDebug("Received message with unrecognized event name: {Event}", eventName);
+                    continue;
+                }
+
+
+                if (!Enum.IsDefined(eventType.Value))
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
@@ -137,10 +144,17 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventContextData = message.GetEventContextData();
+                var interactionEventType = InteractionEventType.None;
+                var interactionEventyTypeInt = eventContextData.GetIntProperty("type");
+                if (interactionEventyTypeInt != null)
+                {
+                    interactionEventType = interactionEventyTypeInt.ToEnum<InteractionEventType>().GetValueOrDefault();
+                }
+
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
                 _logger.LogDebug("Event context: {Event}", DiscNetSerializer.GetInstance().Serialize(eventContextData));
 
-                await _eventDispatcher.DispatchAsync(new EventHandlerPayload(eventType, eventContextData));
+                await _eventDispatcher.DispatchAsync(new EventHandlerPayload(eventType.Value, eventContextData, interactionEventType));
             }
         }
 
@@ -288,5 +302,6 @@ namespace Disc.NET.Gateway
 
             return json;
         }
+
     }
 }

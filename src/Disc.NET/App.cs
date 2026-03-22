@@ -1,6 +1,5 @@
 ﻿using Disc.NET.Configuration;
 using Disc.NET.Gateway;
-using Disc.NET.Shared.Configurations;
 using Microsoft.Extensions.Logging;
 
 namespace Disc.NET

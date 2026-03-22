@@ -2,8 +2,8 @@
 
 
 using Disc.NET;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
+using Disc.NET.Configuration;
+using Disc.NET.Enums;
 
 
 

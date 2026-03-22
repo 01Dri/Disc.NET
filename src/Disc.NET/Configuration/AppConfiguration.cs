@@ -1,7 +1,6 @@
-﻿using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Enums;
 
-
-namespace Disc.NET.Shared.Configurations
+namespace Disc.NET.Configuration
 {
     public sealed class AppConfiguration
     {

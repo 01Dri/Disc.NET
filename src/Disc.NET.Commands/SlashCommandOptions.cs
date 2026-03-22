@@ -1,10 +1,4 @@
-﻿using Disc.NET.Commands.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Shared.Enums;
 
 namespace Disc.NET.Commands
 {

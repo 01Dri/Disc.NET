@@ -1,19 +1,18 @@
-﻿using System.Text;
-using Disc.NET.Client.SDK.Interfaces;
+﻿using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
-using Disc.NET.Shared.Configurations;
 using Disc.NET.Shared.Exceptions;
 using Disc.NET.Shared.Serializer;
+using System.Text;
 
 namespace Disc.NET.Client.SDK;
 
 public sealed class Client : ClientBase, IClient
 {
-    private readonly AppConfiguration _appConfiguration;
+    private readonly ClientConfiguration _clientConfiguration;
     private readonly DiscNetSerializer _serializer = DiscNetSerializer.GetInstance();
-    public Client(AppConfiguration appConfiguration, HttpClient client) : base(appConfiguration, client)
+    public Client(ClientConfiguration clientConfiguration, HttpClient client) : base(clientConfiguration, client)
     {
-        _appConfiguration = appConfiguration;
+        _clientConfiguration = clientConfiguration;
     }
 
     public async Task SendMessageAsync(string channelId, ApiMessage message, CancellationToken cancellation = default)
@@ -37,13 +36,13 @@ public sealed class Client : ClientBase, IClient
 
     public async Task RegisterGlobalSlashCommandAsync(string commandJson, CancellationToken cancellation = default)
     {
-        await PostAsync(commandJson, $"applications/{_appConfiguration.ApplicationId}/commands",
+        await PostAsync(commandJson, $"applications/{_clientConfiguration.ApplicationId}/commands",
             cancellation);
     }
 
     public async Task RegisterGuildSlashCommandAsync(string commandJson, string guildId, CancellationToken cancellation = default)
     {
-        await PostAsync(commandJson, $"applications/{_appConfiguration.ApplicationId}/guilds/{guildId}/commands",
+        await PostAsync(commandJson, $"applications/{_clientConfiguration.ApplicationId}/guilds/{guildId}/commands",
             cancellation);
     }
 

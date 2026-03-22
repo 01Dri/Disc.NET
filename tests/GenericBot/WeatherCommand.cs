@@ -245,7 +245,7 @@ namespace GenericBot
                 }
             };
 
-            var message = new ApiMessage
+            var message = new Message
             {
                 Embeds = [embed],
                 MessageComponents = [actionRowWithSelectMenu]

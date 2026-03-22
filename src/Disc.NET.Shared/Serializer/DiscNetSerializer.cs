@@ -1,7 +1,4 @@
-﻿using Disc.NET.Shared.Configurations;
-using System;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Disc.NET.Shared.Serializer
 {

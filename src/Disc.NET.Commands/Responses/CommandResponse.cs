@@ -1,13 +1,12 @@
 ﻿using Disc.NET.Client.SDK;
 using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
-using Disc.NET.Shared.Configurations;
 
 namespace Disc.NET.Commands.Responses
 {
-    public class CommandResponse(AppConfiguration appConfiguration)
+    public class CommandResponse
     {
-        private readonly IClient _client = ClientSingleton.GetInstance(appConfiguration);
+        private readonly IClient _client = ClientSingleton.GetInstance();
         public string ChannelId { get; set; } = string.Empty;
         public string MessageId { get; set; } = string.Empty;
 
