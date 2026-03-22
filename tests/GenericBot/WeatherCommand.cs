@@ -1,13 +1,12 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using Disc.NET.Client.SDK.Messages;
-using Disc.NET.Client.SDK.Messages.Components;
-using Disc.NET.Client.SDK.Messages.Components.Selects;
+﻿using Disc.NET.Client.SDK.Messages.Components.Selects;
 using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Shared.Enums;
+using Disc.NET.Commands.Enums;
+using Disc.NET.Commands.MessageBuilders;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GenericBot
 {
@@ -44,7 +43,7 @@ namespace GenericBot
             // });
 
 
-            var actionRowWithSelectMenu = new ActionRowSelectMenuComponentBuilder()
+            var actionRowWithSelectMenu = new ActionRowSelectMenuBuilder()
                 .AddMenu(new StringSelectComponent
                 {
                     CustomId = "weather_options1",
@@ -245,10 +244,10 @@ namespace GenericBot
                 }
             };
 
-            var message = new Message<InteractionContext>
+            var message = new Message
             {
                 Embeds = [embed],
-                MessageComponents = [actionRowWithSelectMenu]
+                ActionRows = [actionRowWithSelectMenu]
             };
 
             await context.Response.SendMessageAsync(message, CancellationToken.None);

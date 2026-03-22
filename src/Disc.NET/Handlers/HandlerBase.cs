@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Disc.NET.Handlers;
 
-internal abstract class HandlerBase<TContext> where TContext : IContext
+internal abstract class HandlerBase<TContext> where TContext : ContextBase
 {
     protected IClient Client;
     protected DiscNetSerializer Serializer;

@@ -1,4 +1,4 @@
 ﻿namespace Disc.NET.Commands.Contexts
 {
-	public interface IContext;
+	public abstract class ContextBase;
 }

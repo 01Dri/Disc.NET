@@ -1,4 +1,4 @@
-﻿namespace Disc.NET.Shared.Enums
+﻿namespace Disc.NET.Commands.Enums
 {
     public enum InteractionType
     {

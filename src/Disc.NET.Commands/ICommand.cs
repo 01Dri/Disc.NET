@@ -2,7 +2,7 @@
 
 namespace Disc.NET.Commands
 {
-    public interface ICommand<T> where T : IContext
+    public interface ICommand<T> where T : ContextBase
     {
     }
 }

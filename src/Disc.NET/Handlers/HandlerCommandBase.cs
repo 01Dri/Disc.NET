@@ -4,6 +4,9 @@ using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Commands.Responses;
 using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
+using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
@@ -20,7 +23,7 @@ namespace Disc.NET.Handlers
         }
 
         protected ICommand<TKContext>? GetCommandByAttribute<TAttribute, TKContext>(string commandName)
-            where TKContext : IContext
+            where TKContext : ContextBase
             where TAttribute : Attribute
 
         {
@@ -35,7 +38,7 @@ namespace Disc.NET.Handlers
         }
 
         protected List<T> GetCommandAttributes<T>() where T : Attribute
-        {
+        {   
             var assembly = Assembly.GetEntryAssembly();
             if (assembly == null)
                 throw new InvalidOperationException("Could not determine the entry assembly.");
@@ -47,7 +50,14 @@ namespace Disc.NET.Handlers
                 .ToList();
         }
 
-
+        protected ContextBase BuildContextByCustomIdCallbackType(EventHandlerPayload payload, CallbackType callbackType, AppConfiguration appConfiguration)
+        {
+            if (callbackType == CallbackType.PrefixCommand)
+            {
+                return BuildCommandContext(payload.Data, appConfiguration);
+            }
+            return BuildInteractionContext(payload.Data, appConfiguration);
+        }
         protected override CommandContext BuildCommandContext(JsonDocument contextJson, AppConfiguration appConfiguration)
         {
             CommandContext context = new CommandContext();
@@ -127,7 +137,7 @@ namespace Disc.NET.Handlers
 
 
         private Type? GetCommandTypeByName<T, TK>(string name)
-        where TK : IContext
+        where TK : ContextBase
         where T : Attribute
         {
             var assembly = Assembly.GetEntryAssembly()

@@ -9,7 +9,7 @@ public class ApiMessage
     public List<Embed> Embeds { get; set; } = [];
     public long Flags {  get; set; }
 
-    public List<object> Components { get; set; } = [];
+    public List<object> Components { get; set;  } = [];
 
 	public int? Type { get; set; }
 

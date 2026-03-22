@@ -3,7 +3,7 @@ using Disc.NET.Commands.Responses;
 
 namespace Disc.NET.Commands.Contexts
 {
-    public class CommandContext : IContext
+    public class CommandContext : ContextBase
     {
         public string Id { get; set; } = string.Empty;
         public Author? Author { get; set; }

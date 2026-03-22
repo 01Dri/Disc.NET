@@ -1,4 +1,4 @@
-﻿using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Commands.Enums;
 
 namespace Disc.NET.Commands
 {

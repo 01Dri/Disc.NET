@@ -3,7 +3,7 @@ using Disc.NET.Commands.Responses;
 
 namespace Disc.NET.Commands.Contexts
 {
-    public class InteractionContext : IContext
+    public class InteractionContext : ContextBase
     {
         public Member? Member { get; set; }
         public string Id { get; set; } = string.Empty;

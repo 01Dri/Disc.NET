@@ -1,7 +1,6 @@
 ﻿using Disc.NET.Client.SDK;
 using Disc.NET.Client.SDK.Interfaces;
 using Disc.NET.Client.SDK.Messages;
-using Disc.NET.Commands.Contexts;
 
 namespace Disc.NET.Commands.Responses
 {
@@ -12,14 +11,13 @@ namespace Disc.NET.Commands.Responses
         public string MessageId { get; set; } = string.Empty;
 
 
-        public async Task SendMessageAsync<T>(Message<T> message, CancellationToken cancellation = default) where T : class, IContext
+        public async Task SendMessageAsync(Message message, CancellationToken cancellation = default)
         {
             await _client.SendMessageAsync(ChannelId, message.Build(), cancellation);
         }
 
-        public async Task ReplyAsync<T>(Message<T> message, CancellationToken cancellation = default) where T : class, IContext
+        public async Task ReplyAsync(Message message, CancellationToken cancellation = default)
         {
-
             message.Type = 19;
             message.MessageReference = new ApiMessage()
             {

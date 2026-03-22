@@ -1,20 +1,21 @@
-﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
+﻿using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Client.SDK.Messages.Components.Enums;
 
-namespace Disc.NET.Client.SDK.Messages.Components
+namespace Disc.NET.Commands.MessageBuilders
 {
-    public sealed class ActionRowSelectMenuComponentBuilder : IMessageComponentBuilder
+    public sealed class ActionRowSelectMenuBuilder : ActiorRowBuilderBase, IActionRowBuilder
     {
 
-        public ActionRowSelectMenuComponentBuilder()
+        public ActionRowSelectMenuBuilder()
         {
         }
 
-        public ActionRowSelectMenuComponentBuilder(string? id)
+        public ActionRowSelectMenuBuilder(string? id)
         {
             Id = id;
         }
 
-        public ActionRowSelectMenuComponentBuilder AddMenu(IMessageComponent component)
+        public ActionRowSelectMenuBuilder AddMenu(IMessageComponent component)
         {
             Components.Add(component);
             return this;

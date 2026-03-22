@@ -1,41 +1,40 @@
 ﻿using Disc.NET.Client.SDK.Enums;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
-using Disc.NET.Commands.Contexts;
+using Disc.NET.Commands.MessageBuilders;
 using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Exceptions;
 
 namespace Disc.NET.Commands
 {
-    public class Message<T> : ApiMessage where T : class, IContext
+    public class Message : ApiMessage
     {
         public List<MessageFlag>? MessageFlags { get; set; }
 
-        public List<IMessageComponentBuilder> MessageComponents { get; set; } = [];
+        public List<IActionRowBuilder> ActionRows { get; set; } = [];
 
-        public Action<T>? Callback { get; set; }
         public ApiMessage Build()
         {
             Flags = MessageFlags?.Aggregate(0L, (current, flag) => current | (long)flag) ?? 0L;
-            Components = MountComponents();
+            Components = MountActionRows();
             return this;
         }
 
 
-        private List<object> MountComponents()
+        private List<object> MountActionRows()
         {
-            if (MessageComponents.Count > 5)
+            if (ActionRows.Count > 5)
                 throw new DiscNetGenericException("The message cannot contain more than 5 top-level components.");
 
             var results = new List<object>();
 
-            NormalizeActionRows<ActionRowSelectMenuComponentBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
-                new ActionRowSelectMenuComponentBuilder().AddMenu(message.First()));
+            NormalizeActionRows<ActionRowSelectMenuBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
+                new ActionRowSelectMenuBuilder().AddMenu(message.First()));
 
-            NormalizeActionRows<ActionRowButtonComponentBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
-                new ActionRowButtonComponentBuilder().AddButtons(message));
+            NormalizeActionRows<ActionRowButtonBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
+                new ActionRowButtonBuilder().AddButtons(message));
 
-            MessageComponents.ForEach(x => results.Add(x.Build()));
+            ActionRows.ForEach(x => results.Add(x.Build()));
             return results;
         }
 
@@ -62,16 +61,16 @@ namespace Disc.NET.Commands
         /// - Insufficient available action row slots to split invalid rows
         /// </exception>
         /// <remarks>
-        /// This method mutates the <see cref="MessageComponents"/> collection by:
+        /// This method mutates the <see cref="ActionRow"/> collection by:
         /// - Removing excess components from invalid action rows
         /// - Adding newly created action rows to the message
         /// </remarks>
 
         private void NormalizeActionRows<T>(int quantityComponentPerActionRow,
-            Func<List<IMessageComponent>, IMessageComponentBuilder> createBuilderFunc)
-            where T : IMessageComponentBuilder
+            Func<List<IMessageComponent>, IActionRowBuilder> createBuilderFunc)
+            where T : IActionRowBuilder
         {
-            var actionRows = MessageComponents.Where(x => x is T).ToList();
+            var actionRows = ActionRows.Where(x => x is T).ToList();
 
             if (actionRows.Count == 0) return;
             int actionRowsPerMessage = ActionRowConstraint.MAX_ACTION_ROWS_PER_MESSAGE;
@@ -82,7 +81,7 @@ namespace Disc.NET.Commands
                     $"The message cannot contain more than {actionRowsPerMessage} top-level components.");
             }
 
-            int availableActionRowSlots = actionRowsPerMessage - MessageComponents.Count;
+            int availableActionRowSlots = actionRowsPerMessage - ActionRows.Count;
             var invalidActionRows = actionRows.Where(x => x.Components.Count > quantityComponentPerActionRow).ToList();
             var containsActionRowsInvalids = invalidActionRows.Count > 0;
 
@@ -122,7 +121,7 @@ namespace Disc.NET.Commands
                 while (messageComponents.Count - index > quantityComponentPerActionRow &&
                        newActionRowsCount < availableActionRowSlots)
                 {
-                    IMessageComponentBuilder? newActionRow;
+                    IActionRowBuilder? newActionRow;
 
                     if (quantityComponentPerActionRow > 1)
                     {
@@ -143,7 +142,7 @@ namespace Disc.NET.Commands
                         newActionRow = createBuilderFunc.Invoke([component]);
                     }
 
-                    MessageComponents.Add(newActionRow);
+                    ActionRows.Add(newActionRow);
                     newActionRowsCount++;
                 }
             }
