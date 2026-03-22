@@ -245,7 +245,7 @@ namespace GenericBot
                 }
             };
 
-            var message = new Message
+            var message = new Message<InteractionContext>
             {
                 Embeds = [embed],
                 MessageComponents = [actionRowWithSelectMenu]

@@ -1,17 +1,19 @@
 ﻿using Disc.NET.Client.SDK.Enums;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Exceptions;
 
 namespace Disc.NET.Commands
 {
-    public class Message : ApiMessage
+    public class Message<T> : ApiMessage where T : class, IContext
     {
         public List<MessageFlag>? MessageFlags { get; set; }
 
         public List<IMessageComponentBuilder> MessageComponents { get; set; } = [];
 
+        public Action<T>? Callback { get; set; }
         public ApiMessage Build()
         {
             Flags = MessageFlags?.Aggregate(0L, (current, flag) => current | (long)flag) ?? 0L;

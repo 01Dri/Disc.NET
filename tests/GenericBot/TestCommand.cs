@@ -11,9 +11,10 @@ namespace GenericBot
     {
         public async Task RunAsync(InteractionContext context, SlashCommandParamsResult @params)
         {
-            var message = new Message()
+            var message = new Message<InteractionContext>()
             {
                 Content = "Teste"
+
             };
 
             await context.Response.SendMessageAsync(message);

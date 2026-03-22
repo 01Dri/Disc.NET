@@ -11,7 +11,7 @@ namespace GenericBot
 
         public async Task RunAsync(CommandContext context, List<string> @params)
         {
-            await context.Response.ReplyAsync(new ApiMessage()
+            await context.Response.ReplyAsync(new Message<CommandContext>()
             {
                 Content = "Olá Mundo",
                 Embeds =
