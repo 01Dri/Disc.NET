@@ -107,6 +107,19 @@ namespace Disc.NET.Handlers
             {
                 ChannelId = context.Channel?.Id ?? string.Empty,
             };
+
+            var data = contextJson.GetJsonStringProperty("data");
+            if (!string.IsNullOrEmpty(data))
+            {
+                try
+                {
+                    context.Data = Serializer.Deserialize<InteractionData>(data);
+                }
+                catch (JsonException)
+                {
+                    context.Data = null;
+                }
+            }
             return context;
         }
 

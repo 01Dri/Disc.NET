@@ -1,4 +1,5 @@
-﻿using Disc.NET.Commands.Contexts.Models;
+﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
+using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Commands.Responses;
 
 namespace Disc.NET.Commands.Contexts
@@ -12,7 +13,19 @@ namespace Disc.NET.Commands.Contexts
         public int Type { get; set; }
         public int Context { get; set; }
 
+        public InteractionData? Data { get; set; }
         public InteractionResponse Response { get; set; }
     }
+
+    public class InteractionData
+    {
+        public List<string> Values { get; set; } = [];
+        public int Id { get; set; }
+
+        public string? CustomId { get; set; }
+
+        public MessageComponentType ComponentType { get; set; }
+    }
+
 
 }

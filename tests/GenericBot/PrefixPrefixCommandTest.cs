@@ -25,7 +25,7 @@ namespace GenericBot
                 ],
                 ActionRows = new List<IActionRowBuilder>
                 { 
-                    new ActionRowButtonBuilder().AddButton<CommandContext>
+                    new ActionRowButtonBuilder().AddComponent
                     (
                         new ButtonComponent(ButtonStyle.Primary)
                         {

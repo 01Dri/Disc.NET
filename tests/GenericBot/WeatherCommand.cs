@@ -44,7 +44,7 @@ namespace GenericBot
 
 
             var actionRowWithSelectMenu = new ActionRowSelectMenuBuilder()
-                .AddMenu(new StringSelectComponent
+                .AddComponent<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options1",
                     Placeholder = "📊 Ver detalhes",
@@ -72,7 +72,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddMenu(new StringSelectComponent
+                .AddComponent<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options2",
                     Placeholder = "📊 Ver detalhes",
@@ -100,7 +100,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddMenu(new StringSelectComponent
+                .AddComponent<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options3",
                     Placeholder = "📊 Ver detalhes",
@@ -128,7 +128,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddMenu(new StringSelectComponent
+                .AddComponent<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options4",
                     Placeholder = "📊 Ver detalhes",
@@ -156,7 +156,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddMenu(new StringSelectComponent
+                .AddComponent<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options5",
                     Placeholder = "📊 Ver detalhes",

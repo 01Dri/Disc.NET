@@ -8,6 +8,7 @@ namespace Disc.NET.Commands.MessageBuilders
         public string? Id { get; }
         public List<object> Components { get; }
         object Build();
+        IActionRowBuilder AddComponent<T>(IMessageComponent component, T? context = null, Func<T, Task>? callback = null) where T : ContextBase;
 
     }
 }

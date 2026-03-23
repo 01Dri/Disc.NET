@@ -1,6 +1,7 @@
 ﻿using Disc.NET.Client.SDK.Enums;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.MessageBuilders;
 using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Exceptions;
@@ -29,10 +30,7 @@ namespace Disc.NET.Commands
             var results = new List<object>();
 
             NormalizeActionRows<ActionRowSelectMenuBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
-                new ActionRowSelectMenuBuilder().AddMenu(message.First()));
-
-            NormalizeActionRows<ActionRowButtonBuilder>(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, message =>
-                new ActionRowButtonBuilder().AddButtons(message));
+                new ActionRowSelectMenuBuilder().AddComponent<ContextBase>(message.First()));
 
             ActionRows.ForEach(x => results.Add(x.Build()));
             return results;

@@ -35,6 +35,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 var callbackCustomId = CallbackCustomIdHelper.GetCallbackCustomId(guildId, customIdWithSuffix);
                 var context = BuildContextByCustomIdCallbackType(payload, callbackCustomId.CallbackType,  configuration);
                 await ComponentCallbackRepository.InvokeCallbackAsync(callbackCustomId.Id, context);
+                //ComponentCallbackRepository.UnregisterCallback(callbackCustomId.Id);
             }
         }
     }
