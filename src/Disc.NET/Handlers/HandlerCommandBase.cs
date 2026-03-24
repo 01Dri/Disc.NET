@@ -5,7 +5,6 @@ using Disc.NET.Commands.Contexts.Models;
 using Disc.NET.Commands.Responses;
 using Disc.NET.Configuration;
 using Disc.NET.Dispatcher;
-using Disc.NET.Enums;
 using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
@@ -30,11 +29,8 @@ namespace Disc.NET.Handlers
             var commandType = GetCommandTypeByName<TAttribute, TKContext>(commandName);
 
             if (commandType == null) return null;
-            if (_appConfiguration.UseContainer)
-            {
-                return DiscNetContainer.GetInstance().Resolve(commandType) as ICommand<TKContext>;
-            }
-            return Activator.CreateInstance(commandType) as ICommand<TKContext>;
+            return DiscNetContainer.GetInstance().Resolve(commandType) as ICommand<TKContext>;
+            //return Activator.CreateInstance(commandType) as ICommand<TKContext>;
         }
 
         protected List<T> GetCommandAttributes<T>() where T : Attribute

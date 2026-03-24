@@ -50,7 +50,7 @@ namespace Disc.NET.Configuration
             commandType.ForEach(x => _containerBuilder!.RegisterType(x));
         }
 
-        public DiscNetContainer WithHttpClient()
+        public DiscNetContainer AddHttpClient()
         {
             _containerBuilder!.Register(c => new HttpClient())
                 .As<HttpClient>();

@@ -5,6 +5,7 @@ using Disc.NET.Shared.Extensions;
 using Disc.NET.Shared.Serializer;
 using Microsoft.Extensions.Logging;
 using System.Net.WebSockets;
+using System.Reflection.Emit;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -36,10 +37,15 @@ namespace Disc.NET.Gateway
         /// Initializes a new instance of the <see cref="GatewayConnection"/> class.
         /// </summary>
         /// <param name="logger">Logger instance used for structured logging and diagnostics.</param>
-        public GatewayConnection(AppConfiguration appConfiguration,ILogger<GatewayConnection> logger)
+        public GatewayConnection(AppConfiguration appConfiguration)
         {
             _appConfiguration = appConfiguration;
-            _logger = logger;
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(LogLevel.Debug);
+            });
+            _logger = loggerFactory.CreateLogger<GatewayConnection>();
             _eventDispatcher = new EventDispatcher(_appConfiguration);
         }
 
