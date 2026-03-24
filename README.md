@@ -34,7 +34,10 @@ public class PingCommand : ISlashCommand
 {
     public async Task RunAsync(InteractionContext context, CancellationToken ct = default)
     {
-        await context.Response.SendMessageAsync("🏓 Pong!");
+       await context.Response.SendMessageAsync(new Message()
+       {
+           Content = "Teste",
+       });
     }
 }
 
