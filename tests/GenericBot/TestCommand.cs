@@ -57,7 +57,7 @@ namespace GenericBot
                 Label = "Teste 3",
                 CustomId = "test_button_3",
             };
-            await context.Response.InteractionRespondingAsync(new Message()
+            await context.Response.SendInteractionResponseAsync(new Message()
             {
                 Content = "teste",
                 ActionRows = [new ActionRowBuilder().AddButton<InteractionContext>(teste)]
