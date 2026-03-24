@@ -1,4 +1,4 @@
-﻿using Disc.NET.Client.SDK.Messages.Components.Buttons;
+using Disc.NET.Client.SDK.Messages.Components.Buttons;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
@@ -23,15 +23,9 @@ namespace GenericBot
                     }
                 ],
                 ActionRows = new List<IActionRowBuilder>
-                { 
-                    new ActionRowButtonBuilder().AddComponent
-                    (
-                        new ButtonComponent(ButtonStyle.Primary)
-                        {
-                            Label = "Clique aqui",
-                            CustomId = "button_click"
-                        },
-                        context, Test)
+                {
+                    new ActionRowBuilder()
+                        .AddButton("Clique aqui", "button_click", ButtonStyle.Primary, context, Test)
                 }
             }, cancellationToken);
         }

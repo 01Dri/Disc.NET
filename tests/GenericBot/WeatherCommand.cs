@@ -1,4 +1,4 @@
-﻿using Disc.NET.Client.SDK.Messages.Components.Selects;
+using Disc.NET.Client.SDK.Messages.Components.Selects;
 using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
@@ -35,16 +35,8 @@ namespace GenericBot
             var current = weatherResponse?.Current;
             var units = weatherResponse?.CurrentUnits;
 
-            //var actionWithButtons = new ActionRowButtonComponentBuilder()
-            // .AddButton(new ButtonComponent(ButtonStyle.Link)
-            // {
-            //  Label = "🌐 Open-Meteo",
-            //  Url = "https://open-meteo.com"
-            // });
-
-
-            var actionRowWithSelectMenu = new ActionRowSelectMenuBuilder()
-                .AddComponent<InteractionContext>(new StringSelectComponent
+            var actionRowWithSelectMenu = new ActionRowBuilder()
+                .AddSelectMenu<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options1",
                     Placeholder = "📊 Ver detalhes",
@@ -72,7 +64,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddComponent<InteractionContext>(new StringSelectComponent
+                .AddSelectMenu<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options2",
                     Placeholder = "📊 Ver detalhes",
@@ -100,7 +92,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddComponent<InteractionContext>(new StringSelectComponent
+                .AddSelectMenu<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options3",
                     Placeholder = "📊 Ver detalhes",
@@ -128,7 +120,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddComponent<InteractionContext>(new StringSelectComponent
+                .AddSelectMenu<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options4",
                     Placeholder = "📊 Ver detalhes",
@@ -156,7 +148,7 @@ namespace GenericBot
                         }
                     ]
                 })
-                .AddComponent<InteractionContext>(new StringSelectComponent
+                .AddSelectMenu<InteractionContext>(new StringSelectComponent
                 {
                     CustomId = "weather_options5",
                     Placeholder = "📊 Ver detalhes",

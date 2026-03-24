@@ -1,10 +1,10 @@
-﻿using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Client.SDK.Messages.Components;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Shared.Constraints;
 
 namespace Disc.NET.Commands.MessageBuilders
 {
-    public abstract class ActiorRowBuilderBase
+    public abstract class ActionRowBuilderBase
     {
         protected void RegisterComponentCallback<T>(IMessageComponent component, T context, Func<T, Task>? callback) where T : ContextBase
         {

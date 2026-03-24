@@ -1,6 +1,7 @@
-﻿using Disc.NET.Client.SDK.Enums;
+using Disc.NET.Client.SDK.Enums;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
+using Disc.NET.Client.SDK.Messages.Components.Enums;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.MessageBuilders;
 using Disc.NET.Shared.Constraints;
@@ -31,62 +32,42 @@ namespace Disc.NET.Commands
 
             var results = new List<object>();
 
-            NormalizeActionRows<ActionRowSelectMenuBuilder>(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, message =>
-                new ActionRowSelectMenuBuilder().AddComponent<ContextBase>(message.First()));
+            // Normalize for Select Menus (Max 1 per action row)
+            NormalizeActionRows(ActionRowConstraint.MAX_SELECT_MENUS_PER_ACTION_ROW, components => 
+                components.Any(c => c.Type == MessageComponentType.SelectMenu),
+                message => new ActionRowBuilder().AddComponent<ContextBase>(message.First()));
+
+            // Normalize for Buttons (Max 5 per action row)
+            NormalizeActionRows(ActionRowConstraint.MAX_BUTTONS_PER_ACTION_ROW, components => 
+                components.All(c => c.Type == MessageComponentType.Button),
+                message => 
+                {
+                    var builder = new ActionRowBuilder();
+                    message.ForEach(c => builder.AddComponent<ContextBase>(c));
+                    return builder;
+                });
 
             ActionRows.ForEach(x => results.Add(x.Build()));
             return results;
         }
 
-        /// <summary>
-        /// Normalizes action rows of a specific component type to comply with Discord message constraints.
-        /// 
-        /// This method validates the maximum number of action rows per message and the maximum number
-        /// of components allowed per action row. If an action row exceeds the allowed number of components,
-        /// it is automatically split into multiple valid action rows.
-        /// </summary>
-        /// <typeparam name="T">
-        /// The type of action row builder to process (e.g., select menu rows or button rows).
-        /// </typeparam>
-        /// <param name="quantityComponentPerActionRow">
-        /// The maximum number of components allowed per action row for the given component type.
-        /// </param>
-        /// <param name="createBuilderFunc">
-        /// A factory function responsible for creating a new action row builder from a list
-        /// of message components.
-        /// </param>
-        /// <exception cref="DiscNetClientSdkException">
-        /// Thrown when the message exceeds Discord constraints, such as:
-        /// - Maximum number of action rows per message
-        /// - Insufficient available action row slots to split invalid rows
-        /// </exception>
-        /// <remarks>
-        /// This method mutates the <see cref="ActionRow"/> collection by:
-        /// - Removing excess components from invalid action rows
-        /// - Adding newly created action rows to the message
-        /// </remarks>
-
-        private void NormalizeActionRows<T>(int quantityComponentPerActionRow,
+        private void NormalizeActionRows(int quantityComponentPerActionRow,
+            Func<List<IMessageComponent>, bool> predicate,
             Func<List<IMessageComponent>, IActionRowBuilder> createBuilderFunc)
-            where T : IActionRowBuilder
         {
-            var actionRows = ActionRows.Where(x => x is T).ToList();
+            var actionRowsToProcess = ActionRows.Where(x => predicate(x.Components)).ToList();
 
-            if (actionRows.Count == 0) return;
+            if (actionRowsToProcess.Count == 0) return;
+            
             int actionRowsPerMessage = ActionRowConstraint.MAX_ACTION_ROWS_PER_MESSAGE;
-            int actionRowsCount = actionRows.Count;
-            if (actionRowsCount > actionRowsPerMessage)
-            {
-                throw new DiscNetGenericException(
-                    $"The message cannot contain more than {actionRowsPerMessage} top-level components.");
-            }
-
+            
             int availableActionRowSlots = actionRowsPerMessage - ActionRows.Count;
-            var invalidActionRows = actionRows.Where(x => x.Components.Count > quantityComponentPerActionRow).ToList();
+            var invalidActionRows = actionRowsToProcess.Where(x => x.Components.Count > quantityComponentPerActionRow).ToList();
             var containsActionRowsInvalids = invalidActionRows.Count > 0;
 
             if (!containsActionRowsInvalids) return;
-            if (availableActionRowSlots == 0 && containsActionRowsInvalids)
+            
+            if (availableActionRowSlots <= 0)
             {
                 throw new DiscNetGenericException($"The message cannot contain more than {actionRowsPerMessage} top-level components.");
             }
@@ -103,19 +84,16 @@ namespace Disc.NET.Commands
                     .Sum(x => x.Components.Count - 1);
             }
 
-
             if (numberNecessaryToCreateNewActionRows > availableActionRowSlots)
             {
                 throw new DiscNetGenericException(
-                    $"The message cannot contain more than {actionRowsPerMessage} top-level components.");
+                    $"The message cannot contain more than {actionRowsPerMessage} top-level components and there is no space to split components into new Action Rows.");
             }
 
             int newActionRowsCount = 0;
             foreach (var actionRow in invalidActionRows)
             {
-                var messageComponents = actionRow.Components
-                    .OfType<IMessageComponent>()
-                    .ToList();
+                var messageComponents = actionRow.Components.ToList();
 
                 int index = 0;
                 while (messageComponents.Count - index > quantityComponentPerActionRow &&
@@ -125,28 +103,44 @@ namespace Disc.NET.Commands
 
                     if (quantityComponentPerActionRow > 1)
                     {
-                        var components = messageComponents
-                            .Skip(index)
+                        var componentsToMove = messageComponents
+                            .Skip(index + quantityComponentPerActionRow) // Keep the first N in current row, move others
                             .Take(quantityComponentPerActionRow)
                             .ToList();
-                        components.ForEach(x => actionRow.Components.Remove(x));
+                        
+                        componentsToMove.ForEach(x => actionRow.Components.Remove(x));
                         index += quantityComponentPerActionRow;
-                        newActionRow = createBuilderFunc.Invoke(components);
+                        newActionRow = createBuilderFunc.Invoke(componentsToMove);
                     }
                     else
                     {
-                        var component = messageComponents[index];
-
-                        actionRow.Components.Remove(component);
-                        index++;
-                        newActionRow = createBuilderFunc.Invoke([component]);
+                        // For Select Menus (max 1), move everything after the first one
+                        var componentsToMove = messageComponents.Skip(1).ToList();
+                        componentsToMove.ForEach(x => actionRow.Components.Remove(x));
+                        
+                        // We need to create a new action row for each extra select menu
+                        foreach(var comp in componentsToMove)
+                        {
+                             if (newActionRowsCount < availableActionRowSlots)
+                             {
+                                 ActionRows.Add(createBuilderFunc.Invoke([comp]));
+                                 newActionRowsCount++;
+                             }
+                             else
+                             {
+                                 throw new DiscNetGenericException("Not enough slots for all select menus.");
+                             }
+                        }
+                        break; // Already handled all components for this row
                     }
 
-                    ActionRows.Add(newActionRow);
-                    newActionRowsCount++;
+                    if (newActionRow != null)
+                    {
+                        ActionRows.Add(newActionRow);
+                        newActionRowsCount++;
+                    }
                 }
             }
         }
-
     }
 }
