@@ -1,4 +1,4 @@
-# Disc.NET 🌌
+# Disc.NET
 
 **Disc.NET** é um projeto experimental para a construção de uma biblioteca de interação com a API do Discord, utilizando .NET 8+. O objetivo é criar uma alternativa modular, focada em performance e facilidade de uso através de padrões modernos de desenvolvimento.
 
@@ -6,26 +6,26 @@ O projeto ainda está em **fase ativa de desenvolvimento** e explora arquitetura
 
 ---
 
-## 🏗️ Como o projeto funciona?
+## Como o projeto funciona?
 
 A arquitetura do Disc.NET gira em torno de três pilares principais:
 
-### 📡 Event Dispatcher & Handlers
+### Event Dispatcher & Handlers
 O coração do sistema é o `EventDispatcher`. Ele recebe os payloads brutos da Gateway e os roteia para **Handlers** específicos. 
 - Cada Handler é responsável por um tipo de evento (ex: `InteractionCreate`, `MessageCreate`).
 - Isso permite que a lógica de processamento seja isolada e fácil de estender sem sujar o código principal da conexão.
 
-### 🏷️ Comandos via Attributes
+### Comandos via Attributes
 Chega de `if/else` gigantes para validar comandos. O Disc.NET utiliza **Attributes** para mapear classes de comando automaticamente:
 - Basta decorar sua classe com `[SlashCommand]` ou `[PrefixCommand]`.
 - O sistema de registro faz o *scan* das classes e vincula a execução ao trigger correto via Reflection.
 
-### 💉 Service Container (DI)
+### Service Container (DI)
 Utilizamos um `DiscNetContainer` interno para gerenciar dependências. Isso garante que seus comandos tenham acesso fácil a serviços de configuração, clientes de API e bancos de dados de forma nativa.
 
 ---
 
-## ⚡ Exemplo de Uso (Experimental)
+## Exemplo de Uso (Experimental)
 
 ```csharp
 // 1. Defina o comando usando atributos
