@@ -17,9 +17,9 @@ namespace Disc.NET.Commands.Responses
             await _client.SendMessageAsync(ChannelId, message.Build(), cancellation);
         }
 
-        public async Task InteractionRespondingAsync(Message message, bool ephemeral = false, CancellationToken cancellation = default)
+        public async Task SendInteractionResponseAsync(Message message, bool ephemeral = false, CancellationToken cancellation = default)
         {
-            await _client.InteractionRespondingAsync
+            await _client.SendInteractionResponseAsync
             (
                 InteractionId,
                 InteractionToken, 

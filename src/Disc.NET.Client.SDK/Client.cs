@@ -46,14 +46,14 @@ public sealed class Client : ClientBase, IClient
             cancellation);
     }
 
-    public async Task InteractionRespondingAsync(string interactionId, string interactionToken, string responseJson,
+    public async Task SendInteractionResponseAsync(string interactionId, string interactionToken, string responseJson,
         CancellationToken cancellation = default)
     {
         var url = $"https://discord.com/api/v10/interactions/{interactionId}/{interactionToken}/callback";
         await PostAsync(responseJson, url, cancellation);
     }
 
-    public async Task InteractionRespondingAsync(string interactionId, string interactionToken, ApiMessage message,
+    public async Task SendInteractionResponseAsync(string interactionId, string interactionToken, ApiMessage message,
         bool isEphemeral = false, CancellationToken cancellation = default)
     {
         var teste = _serializer.Serialize(new Teste()

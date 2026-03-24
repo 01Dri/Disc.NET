@@ -47,7 +47,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 }
             };
 
-            await Client.InteractionRespondingAsync(interactionId, interactionToken,
+            await Client.SendInteractionResponseAsync(interactionId, interactionToken,
                 Serializer.Serialize(responseObject));
         }
     }
