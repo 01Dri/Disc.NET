@@ -36,7 +36,7 @@ public class PingCommand : ISlashCommand
     {
        await context.Response.SendMessageAsync(new Message()
        {
-           Content = "Teste",
+           Content = "Hello World!",
        });
     }
 }
