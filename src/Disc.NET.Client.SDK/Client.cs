@@ -53,6 +53,20 @@ public sealed class Client : ClientBase, IClient
         await PostAsync(responseJson, url, cancellation);
     }
 
+    public async Task InteractionRespondingAsync(string interactionId, string interactionToken, ApiMessage message,
+        bool isEphemeral = false, CancellationToken cancellation = default)
+    {
+        var teste = _serializer.Serialize(new Teste()
+        {
+            Type = message.Type!.Value,
+            Data = message
+        });
+        var url = $"https://discord.com/api/v10/interactions/{interactionId}/{interactionToken}/callback";
+
+        await PostAsync(teste, url, cancellation);
+    }
+
+
     private async Task SendMessageAsync(ApiMessage message, string channelId, CancellationToken cancellation = default)
     {
         var messageJson = _serializer.Serialize(message);
@@ -74,6 +88,6 @@ public sealed class Client : ClientBase, IClient
             var error = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
             throw new DiscNetClientSdkException(error, response.StatusCode);
         }
-    }
+    }   
 
 }

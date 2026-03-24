@@ -14,4 +14,6 @@ public interface IClient
 
     Task InteractionRespondingAsync(string interactionId, string interactionToken, string responseJson, CancellationToken cancellation = default);
 
+    Task InteractionRespondingAsync(string interactionId, string interactionToken, ApiMessage message, bool isEphemeral = false,  CancellationToken cancellation = default);
+
 }

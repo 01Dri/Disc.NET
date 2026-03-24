@@ -9,8 +9,7 @@ namespace GenericBot
     [PrefixCommand("helloword")]
     public class PrefixPrefixCommandTest : IPrefixCommand
     {
-
-        public async Task RunAsync(CommandContext context, List<string> @params)
+        public async Task RunAsync(CommandContext context, CancellationToken cancellationToken = default)
         {
             await context.Response.ReplyAsync(new Message()
             {
@@ -34,7 +33,7 @@ namespace GenericBot
                         },
                         context, Test)
                 }
-            });
+            }, cancellationToken);
         }
 
         private async Task Test(CommandContext context)

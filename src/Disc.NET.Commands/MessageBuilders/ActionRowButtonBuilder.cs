@@ -4,6 +4,8 @@ using Disc.NET.Commands.Contexts;
 
 namespace Disc.NET.Commands.MessageBuilders
 {
+
+    // Think if it`s possible create a generic action row builder where component can be button, selects etc...
     public sealed class ActionRowButtonBuilder : ActiorRowBuilderBase, IActionRowBuilder
     {
         public string? Id { get; }

@@ -12,7 +12,7 @@ namespace GenericBot
     [SlashCommand("test", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
     public class TestCommand : ISlashCommand
     {
-        public async Task RunAsync(InteractionContext context, SlashCommandParamsResult @params)
+        public async Task RunAsync(InteractionContext context, CancellationToken cancellation = default)
         {
 
             List<ContextBase> teste = new() { new InteractionContext() { Id = "123" } };
@@ -35,6 +35,8 @@ namespace GenericBot
 
                         }
                     }, context, TestCallback3Async),
+
+
                     new ActionRowButtonBuilder()
                         .AddComponent(
                             new ButtonComponent(ButtonStyle.Primary)
@@ -44,10 +46,11 @@ namespace GenericBot
                             },
                             context,
                             TestCallbackAsync
+
                         ).AddComponent(
                             new ButtonComponent(ButtonStyle.Secondary)
                             {
-                                CustomId = "test_button_2",
+                                CustomId = "12312312:test_button_2:slash-command",
                                 Label = "Testar 2"
                             },
                             context,
@@ -56,7 +59,7 @@ namespace GenericBot
                 }
             };
 
-            await context.Response.SendMessageAsync(message);
+            await context.Response.SendMessageAsync(message, cancellation);
         }
 
         private async Task TestCallbackAsync(InteractionContext context)
@@ -64,6 +67,7 @@ namespace GenericBot
             await context.Response.SendMessageAsync(new Message()
             {
                 Content = "Teste",
+                Type = 4,
             });
         }
 
@@ -76,15 +80,19 @@ namespace GenericBot
         }
 
 
-        // Think about how use SlashCommandParamsResult in callbacks
+        // Think about how use SlashCommandData in callbacks
         private async Task TestCallback3Async(InteractionContext context)
         {
-
-            var option = context.Data?.Values.FirstOrDefault();
-            await context.Response.SendMessageAsync(new Message()
+            var teste = new ButtonComponent(ButtonStyle.Danger)
             {
-                Content = $"Você escolheu a opção: {option}",
-            });
+                Label = "Teste 3",
+                CustomId = "test_button_3",
+            };
+            await context.Response.InteractionRespondingAsync(new Message()
+            {
+                Content = "teste",
+                ActionRows = [new ActionRowButtonBuilder().AddComponent<InteractionContext>(teste)]
+            }, true);
         }
     }
 }

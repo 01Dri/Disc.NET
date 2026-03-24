@@ -32,7 +32,6 @@ namespace Disc.NET.Handlers.EventHandlers
                     Name = attribute.Name,
                     Description = attribute.Description,
                     Type = attribute.Type,
-                    Options = command.BuildOptions()
                 };
                 var slashComamndToRegisterJson = Serializer.Serialize(slashCommandToRegisterObject);
                 var guildId = attribute.GuildId;

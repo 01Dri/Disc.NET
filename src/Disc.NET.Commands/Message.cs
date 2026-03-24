@@ -10,14 +10,16 @@ namespace Disc.NET.Commands
 {
     public class Message : ApiMessage
     {
+        
         public List<MessageFlag>? MessageFlags { get; set; }
 
         public List<IActionRowBuilder> ActionRows { get; set; } = [];
-
+        
         public ApiMessage Build()
         {
             Flags = MessageFlags?.Aggregate(0L, (current, flag) => current | (long)flag) ?? 0L;
             Components = MountActionRows();
+            Type ??= 4;
             return this;
         }
 

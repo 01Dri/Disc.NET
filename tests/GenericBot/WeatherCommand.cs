@@ -21,7 +21,7 @@ namespace GenericBot
         }
 
 
-        public async Task RunAsync(InteractionContext context, SlashCommandParamsResult @params)
+        public async Task RunAsync(InteractionContext context, CancellationToken cancellation = default)
         {
 
             var weatherApi =

@@ -11,7 +11,7 @@ namespace Disc.NET.Client.SDK.Messages.Components.Buttons
 
         // emoji
 
-        public string? CustomId { get; set; }
+        public required string CustomId { get; set; }
 		public string? SkuId { get; set; }
 		public string? Url { get; set; }
 

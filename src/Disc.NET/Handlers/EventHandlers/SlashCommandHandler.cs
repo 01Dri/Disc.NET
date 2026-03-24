@@ -15,7 +15,6 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-
         public GatewayEvent GetEventType()
             => GatewayEvent.InteractionCreate;
 
@@ -24,14 +23,14 @@ namespace Disc.NET.Handlers.EventHandlers
             if (payload.InteractionEventType != InteractionEventType.ApplicationCommand) return;
             var data = payload.Data.GetJsonStringProperty("data");
             if (string.IsNullOrEmpty(data)) return;
-            var slashCommandResult = Serializer.Deserialize<SlashCommandParamsResult>(data);
+            var slashCommandResult = Serializer.Deserialize<SlashCommandData>(data);
             if (slashCommandResult == null) return;
             var command = (ISlashCommand)
                 GetCommandByAttribute<SlashCommandAttribute, InteractionContext>(slashCommandResult.Name);
             if (command == null) return;
             var context = BuildInteractionContext(payload.Data, configuration);
             await SendInteractionResponseAsync(payload.Data);
-            await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);
+            await command.RunAsync(context).ConfigureAwait(false);
 
         }
         private async Task SendInteractionResponseAsync(JsonDocument contextJson)

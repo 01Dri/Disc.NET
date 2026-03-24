@@ -12,7 +12,7 @@ namespace Disc.NET.Commands.Contexts
         public Channel? Channel { get; set; }
         public int Type { get; set; }
         public int Context { get; set; }
-
+        public string Token { get; set; } = string.Empty;
         public InteractionData? Data { get; set; }
         public InteractionResponse Response { get; set; }
     }

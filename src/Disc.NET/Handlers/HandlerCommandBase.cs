@@ -103,9 +103,12 @@ namespace Disc.NET.Handlers
 
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Context = contextJson.GetIntProperty("context") ?? 0;
+            context.Token = contextJson.GetStringProperty("token") ?? string.Empty;
             context.Response = new InteractionResponse()
             {
                 ChannelId = context.Channel?.Id ?? string.Empty,
+                InteractionId = context.Id,
+                InteractionToken = context.Token
             };
 
             var data = contextJson.GetJsonStringProperty("data");

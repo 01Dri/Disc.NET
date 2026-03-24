@@ -28,7 +28,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name);
             if (command == null) return;
             var context = BuildCommandContext(payload.Data, configuration);
-            await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
+            await command.RunAsync(context).ConfigureAwait(false);
         }
     }
 }

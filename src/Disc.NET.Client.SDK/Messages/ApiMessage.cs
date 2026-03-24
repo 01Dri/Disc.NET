@@ -17,3 +17,9 @@ public class ApiMessage
 
     // https://discord.com/developers/docs/resources/message#message-object
 }
+
+class Teste
+{
+    public int Type { get; set; }
+    public ApiMessage Data { get; set; }
+}

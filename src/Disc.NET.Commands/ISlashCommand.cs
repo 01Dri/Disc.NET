@@ -4,8 +4,6 @@ namespace Disc.NET.Commands
 {
     public interface ISlashCommand : ICommand<InteractionContext>
     {
-        Task RunAsync(InteractionContext context, SlashCommandParamsResult @params);
-        List<SlashCommandOptions> BuildOptions() => [];
-
+        Task RunAsync(InteractionContext context, CancellationToken cancellation = default);
     }
 }
