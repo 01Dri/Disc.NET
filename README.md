@@ -25,6 +25,23 @@ Utilizamos um `DiscNetContainer` interno para gerenciar dependências. Isso gara
 
 ---
 
+## Instalação via NuGet
+
+Instale o pacote principal:
+
+```bash
+dotnet add package Disc.NET
+```
+
+Se precisar instalar os módulos separadamente:
+
+```bash
+dotnet add package Disc.NET.Client.SDK
+dotnet add package Disc.NET.Commands
+```
+
+---
+
 ## Exemplo de Uso (Experimental)
 
 ```csharp
