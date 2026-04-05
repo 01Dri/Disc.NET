@@ -1,39 +1,39 @@
 # Disc.NET
 
-**Disc.NET** é um projeto experimental para a construção de uma biblioteca de interação com a API do Discord, utilizando .NET 8+. O objetivo é criar uma alternativa modular, focada em performance e facilidade de uso através de padrões modernos de desenvolvimento.
+**Disc.NET** is an experimental project focused on building a .NET 8+ library for interacting with the Discord API. The goal is to provide a modular alternative with strong performance and a modern developer experience.
 
-O projeto ainda está em **fase ativa de desenvolvimento** e explora arquiteturas desacopladas para lidar com a complexidade da Gateway e das interações do Discord.
+The project is still in **active development** and explores decoupled architectures to handle the complexity of the Discord Gateway and interactions.
 
 ---
 
-## Como o projeto funciona?
+## How does the project work?
 
-A arquitetura do Disc.NET gira em torno de três pilares principais:
+The Disc.NET architecture is built around three main pillars:
 
 ### Event Dispatcher & Handlers
-O coração do sistema é o `EventDispatcher`. Ele recebe os payloads brutos da Gateway e os roteia para **Handlers** específicos. 
-- Cada Handler é responsável por um tipo de evento (ex: `InteractionCreate`, `MessageCreate`).
-- Isso permite que a lógica de processamento seja isolada e fácil de estender sem sujar o código principal da conexão.
+The core of the system is the `EventDispatcher`. It receives raw Gateway payloads and routes them to specific **Handlers**.
+- Each Handler is responsible for a specific event type, such as `InteractionCreate` or `MessageCreate`.
+- This keeps processing logic isolated and makes the system easier to extend without cluttering the main connection flow.
 
-### Comandos via Attributes
-Chega de `if/else` gigantes para validar comandos. O Disc.NET utiliza **Attributes** para mapear classes de comando automaticamente:
-- Basta decorar sua classe com `[SlashCommand]` ou `[PrefixCommand]`.
-- O sistema de registro faz o *scan* das classes e vincula a execução ao trigger correto via Reflection.
+### Commands via Attributes
+Instead of large `if/else` blocks to validate commands, Disc.NET uses **Attributes** to map command classes automatically:
+- Decorate your class with `[SlashCommand]` or `[PrefixCommand]`.
+- The registration system scans the classes and binds execution to the correct trigger through Reflection.
 
 ### Service Container (DI)
-Utilizamos um `DiscNetContainer` interno para gerenciar dependências. Isso garante que seus comandos tenham acesso fácil a serviços de configuração, clientes de API e bancos de dados de forma nativa.
+Disc.NET includes an internal `DiscNetContainer` to manage dependencies. This gives commands native access to configuration services, API clients, and databases.
 
 ---
 
-## Instalação via NuGet
+## Installation via NuGet
 
-Instale o pacote principal:
+Install the main package:
 
 ```bash
 dotnet add package Disc.NET
 ```
 
-Se precisar instalar os módulos separadamente:
+If you need to install the modules separately:
 
 ```bash
 dotnet add package Disc.NET.Client.SDK
@@ -42,11 +42,11 @@ dotnet add package Disc.NET.Commands
 
 ---
 
-## Exemplo de Uso (Experimental)
+## Usage Example (Experimental)
 
 ```csharp
-// 1. Defina o comando usando atributos
-[SlashCommand("ping", InteractionType.ApplicationCommand, "Testa a latência")]
+// 1. Define the command using attributes
+[SlashCommand("ping", InteractionType.ApplicationCommand, "Checks latency")]
 public class PingCommand : ISlashCommand
 {
     public async Task RunAsync(InteractionContext context, CancellationToken ct = default)
@@ -58,7 +58,7 @@ public class PingCommand : ISlashCommand
     }
 }
 
-// 2. Inicialize o AppBuilder
+// 2. Initialize AppBuilder
 var app = new AppBuilder()
     .AddConfiguration(new AppConfiguration("TOKEN") { ApplicationId = 123 })
     .Build();
@@ -66,14 +66,14 @@ var app = new AppBuilder()
 await app.RunAsync();
 ```
 
-### Exemplo com Message Builders
+### Example with Message Builders
 
 ```csharp
 using Disc.NET.Client.SDK.Messages.Components.Buttons;
 using Disc.NET.Commands;
 using Disc.NET.Commands.MessageBuilders;
 
-[SlashCommand("ping", InteractionType.ApplicationCommand, "Testa a latência")]
+[SlashCommand("ping", InteractionType.ApplicationCommand, "Checks latency")]
 public class PingCommand : ISlashCommand
 {
     public async Task RunAsync(InteractionContext context, CancellationToken ct = default)
@@ -82,13 +82,13 @@ public class PingCommand : ISlashCommand
             .WithContent("Hello World!")
             .WithEmbed(embed => embed
                 .SetTitle("Pong!")
-                .SetDescription("Exemplo de mensagem usando builders.")
+                .SetDescription("Example message built with builders.")
                 .SetColor(0x5865F2)
                 .AddField("Status", "Online", true))
             .WithActionRow(
                 new ActionRowBuilder()
-                    .AddButton("Atualizar", "ping_refresh", ButtonStyle.Primary)
-                    .AddLinkButton("Repositório", "https://github.com/dridev/Disc.NET"))
+                    .AddButton("Refresh", "ping_refresh", ButtonStyle.Primary)
+                    .AddLinkButton("Repository", "https://github.com/dridev/Disc.NET"))
             .Build();
 
         await context.Response.SendMessageAsync(message, ct);
@@ -98,12 +98,12 @@ public class PingCommand : ISlashCommand
 
 ---
 
-## 📦 Módulos Atuais
-- **Disc.NET.Client.SDK**: Abstração da API REST.
-- **Disc.NET.Commands**: Motor de execução de comandos e contextos.
-- **Disc.NET.Shared**: Utilitários de serialização e extensões de sistema.
-- **Disc.NET.Components**: Builders para botões, selects e embeds.
+## Current Modules
+- **Disc.NET.Client.SDK**: Discord REST API abstraction.
+- **Disc.NET.Commands**: Command execution engine and contexts.
+- **Disc.NET.Shared**: Serialization utilities and system extensions.
+- **Disc.NET.Components**: Builders for buttons, selects, and embeds.
 
 ---
 
-> ⚠️ **Aviso:** Por ser um projeto experimental, mudanças drásticas na API podem ocorrer a qualquer momento.
+> Warning: Since this is an experimental project, breaking API changes may happen at any time.
