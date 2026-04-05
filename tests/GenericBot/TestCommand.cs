@@ -9,44 +9,35 @@ using Disc.NET.Commands.MessageBuilders;
 namespace GenericBot
 {
 
-    [SlashCommand("test", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
+    [SlashCommand("testo", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
     public class TestCommand : ISlashCommand
     {
         public async Task RunAsync(InteractionContext context, CancellationToken cancellation = default)
         {
-
-            var message = new Message()
-            {
-                Content = "Teste",
-                ActionRows = new List<IActionRowBuilder>
-                {
-                    new ActionRowBuilder()
-                        .AddSelectMenu("test_select", new List<StringSelectOption>()
-                        {
-                            new StringSelectOption()
-                            {
-                                Label = "Opção 1",
-                                Value = "option_1"
-                            },
-
-                        }, context: context, callback: TestCallback3Async),
-
-
-                    new ActionRowBuilder()
-                        .AddButton("Testar", "test_button", ButtonStyle.Primary, context, TestCallbackAsync)
-                        .AddLinkButton("Testar 2", "https://www.linkedin.com/in/dridev/")
-                }
-            };
+            var message = new MessageBuilder()
+                .WithContent("teste")
+                .WithEmbed(embed => embed
+                    .SetTitle("Embed de teste")
+                    .SetDescription("Mensagem gerada com MessageBuilder + EmbedBuilder")
+                    .SetColor(0x5865F2)
+                    .AddField("Comando", "/test", inline: true))
+                .WithActionRow(new ActionRowBuilder()
+                    .AddButton("Testar", "test_button", ButtonStyle.Primary, context, TestCallbackAsync)
+                    .AddLinkButton("Testar 2", "https://www.linkedin.com/in/dridev/")
+                ).Build();
 
             await context.Response.SendMessageAsync(message, cancellation);
         }
 
         private async Task TestCallbackAsync(InteractionContext context)
         {
-            await context.Response.SendMessageAsync(new Message()
-            {
-                Content = "Teste",
-            });
+            await context.Response.SendMessageAsync(new MessageBuilder()
+                .WithContent("Teste")
+                .WithEmbed(embed => embed
+                    .SetTitle("Callback executado")
+                    .SetDescription("Resposta criada via MessageBuilder")
+                    .SetColor(0x57F287))
+                .Build());
         }
 
         private async Task TestCallback3Async(InteractionContext context)

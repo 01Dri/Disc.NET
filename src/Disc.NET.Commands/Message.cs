@@ -2,6 +2,7 @@ using Disc.NET.Client.SDK.Enums;
 using Disc.NET.Client.SDK.Messages;
 using Disc.NET.Client.SDK.Messages.Components;
 using Disc.NET.Client.SDK.Messages.Components.Enums;
+using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.MessageBuilders;
 using Disc.NET.Shared.Constraints;
@@ -11,10 +12,27 @@ namespace Disc.NET.Commands
 {
     public class Message : ApiMessage
     {
-        
         public List<MessageFlag>? MessageFlags { get; set; }
 
         public List<IActionRowBuilder> ActionRows { get; set; } = [];
+
+        public Message AddEmbed(Embed embed)
+        {
+            Embeds.Add(embed);
+            return this;
+        }
+
+        public Message AddEmbed(EmbedBuilder builder)
+        {
+            return AddEmbed(builder.Build());
+        }
+
+        public Message AddEmbed(Action<EmbedBuilder> configure)
+        {
+            var builder = new EmbedBuilder();
+            configure(builder);
+            return AddEmbed(builder);
+        }
         
         public ApiMessage Build()
         {
