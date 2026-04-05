@@ -1,5 +1,4 @@
 using Disc.NET.Client.SDK.Messages.Components.Buttons;
-using Disc.NET.Client.SDK.Messages.Components.Selects;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
