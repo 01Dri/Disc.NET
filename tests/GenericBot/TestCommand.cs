@@ -46,7 +46,6 @@ namespace GenericBot
             await context.Response.SendMessageAsync(new Message()
             {
                 Content = "Teste",
-                Type = 4,
             });
         }
 

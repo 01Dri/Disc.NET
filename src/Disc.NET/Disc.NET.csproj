@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeSharedProjectOutput</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,14 @@
   <ItemGroup>
     <ProjectReference Include="..\Disc.NET.Client.SDK\Disc.NET.Client.SDK.csproj" />
     <ProjectReference Include="..\Disc.NET.Commands\Disc.NET.Commands.csproj" />
-    <ProjectReference Include="..\Disc.NET.Shared\Disc.NET.Shared.csproj" />
+    <ProjectReference Include="..\Disc.NET.Shared\Disc.NET.Shared.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <Target Name="IncludeSharedProjectOutput" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths)"
+                            Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' and '%(ReferenceCopyLocalPaths.Filename)' == 'Disc.NET.Shared'" />
+    </ItemGroup>
+  </Target>
 
 </Project>
