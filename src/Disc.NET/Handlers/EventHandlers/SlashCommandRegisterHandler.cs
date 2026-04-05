@@ -1,9 +1,9 @@
 ﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
-using System.Text.Json;
+using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
@@ -13,15 +13,11 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson,
-            AppConfiguration configuration)
-        {
-            if (@event != GatewayEvent.Ready)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+        public GatewayEvent GetEventType()
+            => GatewayEvent.Ready;
 
+        public async Task HandleAsync(EventHandlerPayload payload, AppConfiguration configuration)
+        {
             List<SlashCommandAttribute> attributes = GetCommandAttributes<SlashCommandAttribute>();
             foreach (var attribute in attributes)
             {
@@ -36,7 +32,6 @@ namespace Disc.NET.Handlers.EventHandlers
                     Name = attribute.Name,
                     Description = attribute.Description,
                     Type = attribute.Type,
-                    Options = command.BuildOptions()
                 };
                 var slashComamndToRegisterJson = Serializer.Serialize(slashCommandToRegisterObject);
                 var guildId = attribute.GuildId;

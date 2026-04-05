@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Disc.NET")]
 [assembly: InternalsVisibleTo("Disc.NET.Client.SDK")]
+[assembly: InternalsVisibleTo("Disc.NET.Commands")]
+

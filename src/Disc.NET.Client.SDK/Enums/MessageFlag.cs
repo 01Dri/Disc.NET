@@ -1,4 +1,4 @@
-﻿namespace Disc.NET.Shared.Enums
+﻿namespace Disc.NET.Client.SDK.Enums
 {
     [Flags]
     public enum MessageFlag

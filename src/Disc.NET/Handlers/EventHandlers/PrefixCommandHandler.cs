@@ -1,8 +1,9 @@
 ﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
+using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
 using Disc.NET.Shared.Extensions;
 using System.Text.Json;
 
@@ -14,39 +15,20 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson, AppConfiguration configuration)
+        public GatewayEvent GetEventType()
+            => GatewayEvent.MessageCreate;
+
+        public async Task HandleAsync(EventHandlerPayload payload, AppConfiguration configuration)
         {
-            if (@event != GatewayEvent.MessageCreate)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
-            var content = contextJson.GetStringProperty("content");
-            if (string.IsNullOrEmpty(content))
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+            if (payload.InteractionEventType != InteractionEventType.None) return;
+            var content = payload.Data.GetStringProperty("content");
+            if (string.IsNullOrEmpty(content)) return;
             var commandModel = BuildCommandModelByEventContent(content);
-            if (commandModel.Prefix != configuration.BotPrefix)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
             var command = (IPrefixCommand)
                 GetCommandByAttribute<PrefixCommandAttribute, CommandContext>(commandModel.Name);
-
-            if (command == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
-            var context = BuildCommandContext(contextJson, configuration);
-            await command.RunAsync(context, commandModel.Params).ConfigureAwait(false);
+            if (command == null) return;
+            var context = BuildCommandContext(payload.Data, configuration);
+            await command.RunAsync(context).ConfigureAwait(false);
         }
-
     }
 }

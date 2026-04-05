@@ -1,22 +1,25 @@
-﻿using System.Text.Json.Serialization;
-using Disc.NET.Client.SDK.Messages.Embeds;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Client.SDK.Messages.Embeds;
 
-namespace Disc.NET.Client.SDK.Messages
+namespace Disc.NET.Client.SDK.Messages;
+
+public class ApiMessage
 {
-    public class ApiMessage
-    {
-        public string Content { get; set; } = string.Empty;
-        public List<Embed> Embeds { get; set; } = [];
+    public string? MessageId { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public List<Embed> Embeds { get; set; } = [];
+    public long Flags {  get; set; }
 
-        [JsonIgnore]
-        public List<MessageFlag>? MessageFlags { get; set; } 
+    public List<object> Components { get; set;  } = [];
 
-        public long Flags => MessageFlags?.Aggregate(0L, (current, flag) => current | (long)flag) ?? 0L;
+	public int? Type { get; set; }
 
+    public ApiMessage? MessageReference { get; set; }
 
-        // Colocar os outros campos depois
-        // https://discord.com/developers/docs/resources/message#message-object
-    }
+    // https://discord.com/developers/docs/resources/message#message-object
+}
 
+class Teste
+{
+    public int Type { get; set; }
+    public ApiMessage Data { get; set; }
 }

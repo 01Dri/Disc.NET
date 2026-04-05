@@ -1,11 +1,11 @@
-﻿using Disc.NET.Handlers;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
+﻿using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
 using Disc.NET.Shared.Extensions;
 using Disc.NET.Shared.Serializer;
 using Microsoft.Extensions.Logging;
 using System.Net.WebSockets;
-using System.Reflection.Metadata;
+using System.Reflection.Emit;
 using System.Text.Json;
 using System.Threading.Channels;
 
@@ -31,14 +31,22 @@ namespace Disc.NET.Gateway
         private readonly ClientWebSocket _ws = new();
         private readonly Channel<JsonDocument> _channel = Channel.CreateUnbounded<JsonDocument>();
         private readonly ILogger<GatewayConnection> _logger;
-
+        private readonly EventDispatcher _eventDispatcher;
+        private readonly AppConfiguration _appConfiguration;
         /// <summary>
         /// Initializes a new instance of the <see cref="GatewayConnection"/> class.
         /// </summary>
         /// <param name="logger">Logger instance used for structured logging and diagnostics.</param>
-        public GatewayConnection(ILogger<GatewayConnection> logger)
+        public GatewayConnection(AppConfiguration appConfiguration)
         {
-            _logger = logger;
+            _appConfiguration = appConfiguration;
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(LogLevel.Debug);
+            });
+            _logger = loggerFactory.CreateLogger<GatewayConnection>();
+            _eventDispatcher = new EventDispatcher(_appConfiguration);
         }
 
         /// <summary>
@@ -55,7 +63,7 @@ namespace Disc.NET.Gateway
         /// <item>Starts concurrent loops for reading WebSocket messages and handling them asynchronously.</item>
         /// </list>
         /// </remarks>
-        public async Task ConnectAsync(AppConfiguration configuration)
+        public async Task ConnectAsync()
         {
             _logger.LogInformation("Connecting to Discord Gateway...");
 
@@ -76,7 +84,7 @@ namespace Disc.NET.Gateway
 
             // Identify and authenticate
             _logger.LogDebug("Sending Identify payload...");
-            await SendIdentifyPayloadAsync(configuration.Token, configuration).ConfigureAwait(false);
+            await SendIdentifyPayloadAsync(_appConfiguration).ConfigureAwait(false);
             _logger.LogDebug("Identify payload sent.");
 
             // Producer: Reads WebSocket messages and writes them to a channel
@@ -122,8 +130,15 @@ namespace Disc.NET.Gateway
                     continue;
                 }
 
-                var eventType = eventName.ToGatewayEventType();
-                if (!Enum.IsDefined(eventType))
+                var eventType = eventName.ToEnum<GatewayEvent>();
+                if (eventType == null) 
+                {
+                    _logger.LogDebug("Received message with unrecognized event name: {Event}", eventName);
+                    continue;
+                }
+
+
+                if (!Enum.IsDefined(eventType.Value))
                 {
                     _logger.LogDebug("Ignoring unsupported event: {Event}", eventName);
                     continue;
@@ -135,11 +150,17 @@ namespace Disc.NET.Gateway
                 }
 
                 var eventContextData = message.GetEventContextData();
+                var interactionEventType = InteractionEventType.None;
+                var interactionEventyTypeInt = eventContextData.GetIntProperty("type");
+                if (interactionEventyTypeInt != null)
+                {
+                    interactionEventType = interactionEventyTypeInt.ToEnum<InteractionEventType>().GetValueOrDefault();
+                }
+
                 _logger.LogDebug("Dispatching event: {Event}", eventName);
                 _logger.LogDebug("Event context: {Event}", DiscNetSerializer.GetInstance().Serialize(eventContextData));
 
-                await HandlerFactory.CreateHandlerChain(configuration).HandleAsync(eventType, eventContextData, configuration)
-                   .ConfigureAwait(false);
+                await _eventDispatcher.DispatchAsync(new EventHandlerPayload(eventType.Value, eventContextData, interactionEventType));
             }
         }
 
@@ -215,14 +236,14 @@ namespace Disc.NET.Gateway
         /// <remarks>
         /// The Identify payload includes OS, device, and browser properties as required by the Discord API.
         /// </remarks>
-        private async Task SendIdentifyPayloadAsync(string token, AppConfiguration configuration)
+        private async Task SendIdentifyPayloadAsync(AppConfiguration configuration)
         {
             var identify = JsonSerializer.Serialize(new
             {
                 op = GatewayOpCode.Identify,
                 d = new
                 {
-                    token = $"Bot {token}",
+                    token = $"Bot {configuration.Token}",
                     intents = configuration.Intents.GetIntIntents(),
                     properties = new
                     {
@@ -287,5 +308,6 @@ namespace Disc.NET.Gateway
 
             return json;
         }
+
     }
 }

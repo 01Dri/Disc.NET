@@ -66,22 +66,15 @@ namespace Disc.NET.Shared.Extensions
             return null;
         }
 
-        public static JsonDocument? GetEventContextData(this JsonDocument document)
+        public static JsonDocument GetEventContextData(this JsonDocument document)
         {
             if (document.RootElement.TryGetProperty("d", out var dElement) &&
                 dElement.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
             {
-                try
-                {
-                    return JsonSerializer.Deserialize<JsonDocument>(dElement.GetRawText());
-                }
-                catch
-                {
-                    return null;
-                }
+                return JsonSerializer.Deserialize<JsonDocument>(dElement.GetRawText()) ?? throw new Exception();
             }
 
-            return null;
+            throw new Exception();
         }
 
         public static string? GetJsonStringProperty(this JsonDocument document, string propertyName)

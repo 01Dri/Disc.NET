@@ -1,7 +1,4 @@
-﻿using Disc.NET.Shared.Configurations;
-using System;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Disc.NET.Shared.Serializer
 {
@@ -40,9 +37,6 @@ namespace Disc.NET.Shared.Serializer
             return Deserialize<T>(jsonString);
         }
 
-
-
-
         public async Task<T?> DeserializeAsync<T>(Stream json, CancellationToken cancellation = default)
         {
             return await JsonSerializer.DeserializeAsync<T>(json, _options, cancellation)
@@ -53,6 +47,7 @@ namespace Disc.NET.Shared.Serializer
         {
             return JsonSerializer.Serialize(obj, _options);
         }
+
     }
 
 

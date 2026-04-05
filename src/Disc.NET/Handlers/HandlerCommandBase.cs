@@ -1,13 +1,14 @@
-﻿using Disc.NET.Commands;
+﻿using Autofac;
+using Disc.NET.Commands;
 using Disc.NET.Commands.Contexts;
 using Disc.NET.Commands.Contexts.Models;
-using Disc.NET.Shared.Configurations;
+using Disc.NET.Commands.Responses;
+using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
-using Autofac;
-using Autofac.Core;
-using Disc.NET.Configuration;
 
 namespace Disc.NET.Handlers
 {
@@ -21,22 +22,19 @@ namespace Disc.NET.Handlers
         }
 
         protected ICommand<TKContext>? GetCommandByAttribute<TAttribute, TKContext>(string commandName)
-            where TKContext : IContext
+            where TKContext : ContextBase
             where TAttribute : Attribute
 
         {
             var commandType = GetCommandTypeByName<TAttribute, TKContext>(commandName);
 
             if (commandType == null) return null;
-            if (_appConfiguration.UseContainer)
-            {
-                return DiscNetContainer.GetInstance().Resolve(commandType) as ICommand<TKContext>;
-            }
-            return Activator.CreateInstance(commandType) as ICommand<TKContext>;
+            return DiscNetContainer.GetInstance().Resolve(commandType) as ICommand<TKContext>;
+            //return Activator.CreateInstance(commandType) as ICommand<TKContext>;
         }
 
         protected List<T> GetCommandAttributes<T>() where T : Attribute
-        {
+        {   
             var assembly = Assembly.GetEntryAssembly();
             if (assembly == null)
                 throw new InvalidOperationException("Could not determine the entry assembly.");
@@ -48,7 +46,14 @@ namespace Disc.NET.Handlers
                 .ToList();
         }
 
-
+        protected ContextBase BuildContextByCustomIdCallbackType(EventHandlerPayload payload, CallbackType callbackType, AppConfiguration appConfiguration)
+        {
+            if (callbackType == CallbackType.PrefixCommand)
+            {
+                return BuildCommandContext(payload.Data, appConfiguration);
+            }
+            return BuildInteractionContext(payload.Data, appConfiguration);
+        }
         protected override CommandContext BuildCommandContext(JsonDocument contextJson, AppConfiguration appConfiguration)
         {
             CommandContext context = new CommandContext();
@@ -66,9 +71,10 @@ namespace Disc.NET.Handlers
             context.Timestamp = contextJson.GetDateTimeProperty("timestamp");
             context.EditedTimestamp = contextJson.GetDateTimeProperty("edited_timestamp");
             context.Type = contextJson.GetIntProperty("type") ?? 0;
-            context.Response = new CommandResponse(appConfiguration)
+            context.Response = new CommandResponse()
             {
-                ChannelId = context.ChannelId
+                ChannelId = context.ChannelId,
+                MessageId = context.Id
             };
             return context;
         }
@@ -93,10 +99,26 @@ namespace Disc.NET.Handlers
 
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Context = contextJson.GetIntProperty("context") ?? 0;
-            context.Response = new InteractionResponse(appConfiguration)
+            context.Token = contextJson.GetStringProperty("token") ?? string.Empty;
+            context.Response = new InteractionResponse()
             {
                 ChannelId = context.Channel?.Id ?? string.Empty,
+                InteractionId = context.Id,
+                InteractionToken = context.Token
             };
+
+            var data = contextJson.GetJsonStringProperty("data");
+            if (!string.IsNullOrEmpty(data))
+            {
+                try
+                {
+                    context.Data = Serializer.Deserialize<InteractionData>(data);
+                }
+                catch (JsonException)
+                {
+                    context.Data = null;
+                }
+            }
             return context;
         }
 
@@ -127,7 +149,7 @@ namespace Disc.NET.Handlers
 
 
         private Type? GetCommandTypeByName<T, TK>(string name)
-        where TK : IContext
+        where TK : ContextBase
         where T : Attribute
         {
             var assembly = Assembly.GetEntryAssembly()

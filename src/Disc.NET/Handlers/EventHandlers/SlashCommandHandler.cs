@@ -1,10 +1,11 @@
 ﻿using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Shared.Configurations;
-using Disc.NET.Shared.Enums;
-using System.Text.Json;
+using Disc.NET.Configuration;
+using Disc.NET.Dispatcher;
+using Disc.NET.Enums;
 using Disc.NET.Shared.Extensions;
+using System.Text.Json;
 
 namespace Disc.NET.Handlers.EventHandlers
 {
@@ -14,34 +15,22 @@ namespace Disc.NET.Handlers.EventHandlers
         {
         }
 
-        public override async Task HandleAsync(GatewayEvent @event, JsonDocument contextJson,
-            AppConfiguration configuration)
-        {
-            if (@event != GatewayEvent.InteractionCreate)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+        public GatewayEvent GetEventType()
+            => GatewayEvent.InteractionCreate;
 
-            var data = contextJson.GetJsonStringProperty("data");
-            var slashCommandResult = Serializer.Deserialize<SlashCommandParamsResult>(data);
-            if (slashCommandResult == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
+        public async Task HandleAsync(EventHandlerPayload payload, AppConfiguration configuration)
+        {
+            if (payload.InteractionEventType != InteractionEventType.ApplicationCommand) return;
+            var data = payload.Data.GetJsonStringProperty("data");
+            if (string.IsNullOrEmpty(data)) return;
+            var slashCommandResult = Serializer.Deserialize<SlashCommandData>(data);
+            if (slashCommandResult == null) return;
             var command = (ISlashCommand)
                 GetCommandByAttribute<SlashCommandAttribute, InteractionContext>(slashCommandResult.Name);
-            if (command == null)
-            {
-                await base.HandleAsync(@event, contextJson, configuration).ConfigureAwait(false);
-                return;
-            }
-
-            var context = BuildInteractionContext(contextJson, configuration);
-
-            await SendInteractionResponseAsync(contextJson);
-            await command.RunAsync(context, slashCommandResult).ConfigureAwait(false);
+            if (command == null) return;
+            var context = BuildInteractionContext(payload.Data, configuration);
+            await SendInteractionResponseAsync(payload.Data);
+            await command.RunAsync(context).ConfigureAwait(false);
 
         }
         private async Task SendInteractionResponseAsync(JsonDocument contextJson)
@@ -58,7 +47,7 @@ namespace Disc.NET.Handlers.EventHandlers
                 }
             };
 
-            await Client.InteractionRespondingAsync(interactionId, interactionToken,
+            await Client.SendInteractionResponseAsync(interactionId, interactionToken,
                 Serializer.Serialize(responseObject));
         }
     }

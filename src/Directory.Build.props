@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Authors>01Dri</Authors>
+    <Company>01Dri</Company>
+    <Description>Disc.NET libraries for building Discord applications with .NET.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/01Dri/Disc.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/01Dri/Disc.NET</PackageProjectUrl>
+    <PackageTags>discord;dotnet;net8;bot</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Link="README.md" Visible="false" />
+  </ItemGroup>
+</Project>

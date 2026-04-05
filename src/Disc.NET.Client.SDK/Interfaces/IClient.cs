@@ -12,6 +12,8 @@ public interface IClient
     Task RegisterGlobalSlashCommandAsync(string commandJson, CancellationToken cancellation = default);
     Task RegisterGuildSlashCommandAsync(string commandJson, string guildId, CancellationToken cancellation = default);
 
-    Task InteractionRespondingAsync(string interactionId, string interactionToken, string responseJson, CancellationToken cancellation = default);
+    Task SendInteractionResponseAsync(string interactionId, string interactionToken, string responseJson, CancellationToken cancellation = default);
+
+    Task SendInteractionResponseAsync(string interactionId, string interactionToken, ApiMessage message, bool isEphemeral = false,  CancellationToken cancellation = default);
 
 }

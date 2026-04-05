@@ -1,12 +1,10 @@
-﻿using Disc.NET.Client.SDK;
-using Disc.NET.Client.SDK.Interfaces;
-using Disc.NET.Client.SDK.Messages;
+﻿using Disc.NET.Client.SDK.Messages.Components.Enums;
 using Disc.NET.Commands.Contexts.Models;
-using Disc.NET.Shared.Configurations;
+using Disc.NET.Commands.Responses;
 
 namespace Disc.NET.Commands.Contexts
 {
-    public class InteractionContext : IContext
+    public class InteractionContext : ContextBase
     {
         public Member? Member { get; set; }
         public string Id { get; set; } = string.Empty;
@@ -14,19 +12,20 @@ namespace Disc.NET.Commands.Contexts
         public Channel? Channel { get; set; }
         public int Type { get; set; }
         public int Context { get; set; }
-
+        public string Token { get; set; } = string.Empty;
+        public InteractionData? Data { get; set; }
         public InteractionResponse Response { get; set; }
     }
 
-    public class InteractionResponse(AppConfiguration appConfiguration)
+    public class InteractionData
     {
-        private readonly IClient _client = ClientSingleton.GetInstance(appConfiguration);
-        public string ChannelId { get; set; } = string.Empty;
+        public List<string> Values { get; set; } = [];
+        public int Id { get; set; }
 
-        public async Task SendMessageAsync(ApiMessage message, CancellationToken cancellation = default)
-        {
-            await _client.SendMessageAsync(ChannelId, message, cancellation);
-        }
+        public string? CustomId { get; set; }
+
+        public MessageComponentType ComponentType { get; set; }
     }
+
 
 }
