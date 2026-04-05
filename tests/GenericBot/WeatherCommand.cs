@@ -3,14 +3,13 @@ using Disc.NET.Client.SDK.Messages.Embeds;
 using Disc.NET.Commands;
 using Disc.NET.Commands.Attributes;
 using Disc.NET.Commands.Contexts;
-using Disc.NET.Commands.Enums;
 using Disc.NET.Commands.MessageBuilders;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace GenericBot
 {
-    [SlashCommand("tempo", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
+    [SlashCommand("tempo", "Ver as informações de tempo da sua cidade")]
     public class WeatherCommand : ISlashCommand
     {
         private readonly HttpClient _httpClient;

@@ -8,7 +8,7 @@ using Disc.NET.Commands.MessageBuilders;
 namespace GenericBot
 {
 
-    [SlashCommand("testo", InteractionType.SubCommand, "Ver as informações de tempo da sua cidade")]
+    [SlashCommand("testo", "Ver as informações de tempo da sua cidade")]
     public class TestCommand : ISlashCommand
     {
         public async Task RunAsync(InteractionContext context, CancellationToken cancellation = default)
