@@ -7,10 +7,17 @@ namespace Disc.NET.Commands.Responses
     public class Response : IResponse
     {
         private readonly IClient _client = ClientSingleton.GetInstance();
-        public string ChannelId { get; set; } = string.Empty;
+        public string? ChannelId { get; set; } = string.Empty;
         public string InteractionId { get; set; } = string.Empty;
         public string InteractionToken { get; set; } = string.Empty;
-        public string MessageId { get; set; } = string.Empty;
+
+        private string _messageId;
+
+        public string MessageId
+        {
+            get => !string.IsNullOrEmpty(InteractionId) ? InteractionId : _messageId;
+            set => _messageId = value;
+        }
 
         public Response()
         {

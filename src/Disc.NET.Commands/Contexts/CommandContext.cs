@@ -17,7 +17,7 @@ namespace Disc.NET.Commands.Contexts
         public int Type { get; set; }
         public DateTime? EditedTimestamp { get; set; }
 
-        public CommandResponse Response { get; set; }
+        public IResponse Response { get; set; }
     }
 }
 

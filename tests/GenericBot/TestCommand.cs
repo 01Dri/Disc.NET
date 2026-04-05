@@ -30,7 +30,7 @@ namespace GenericBot
 
         private async Task TestCallbackAsync(InteractionContext context)
         {
-            await context.Response.SendMessageAsync(new MessageBuilder()
+            await context.Response.SendInteractionResponseAsync(new MessageBuilder()
                 .WithContent("Teste")
                 .WithEmbed(embed => embed
                     .SetTitle("Callback executado")

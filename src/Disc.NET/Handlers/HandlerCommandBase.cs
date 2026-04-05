@@ -9,6 +9,7 @@ using Disc.NET.Shared.Constraints;
 using Disc.NET.Shared.Extensions;
 using System.Reflection;
 using System.Text.Json;
+using Channel = Disc.NET.Commands.Contexts.Models.Channel;
 
 namespace Disc.NET.Handlers
 {
@@ -71,11 +72,7 @@ namespace Disc.NET.Handlers
             context.Timestamp = contextJson.GetDateTimeProperty("timestamp");
             context.EditedTimestamp = contextJson.GetDateTimeProperty("edited_timestamp");
             context.Type = contextJson.GetIntProperty("type") ?? 0;
-            context.Response = new CommandResponse()
-            {
-                ChannelId = context.ChannelId,
-                MessageId = context.Id
-            };
+            context.Response = BuildResponse(context);
             return context;
         }
 
@@ -100,13 +97,7 @@ namespace Disc.NET.Handlers
             context.Type = contextJson.GetIntProperty("type") ?? 0;
             context.Context = contextJson.GetIntProperty("context") ?? 0;
             context.Token = contextJson.GetStringProperty("token") ?? string.Empty;
-            context.Response = new InteractionResponse()
-            {
-                ChannelId = context.Channel?.Id ?? string.Empty,
-                InteractionId = context.Id,
-                InteractionToken = context.Token
-            };
-
+            context.Response = BuildResponse(context);
             var data = contextJson.GetJsonStringProperty("data");
             if (!string.IsNullOrEmpty(data))
             {
@@ -120,6 +111,16 @@ namespace Disc.NET.Handlers
                 }
             }
             return context;
+        }
+
+        protected IResponse BuildResponse(ContextBase context)
+        {
+            var response = new Response();
+            response.ChannelId = context.Channel?.Id;
+            response.InteractionId = context.Id;
+            response.MessageId = context.Id; // adjust this to interaction context (reply message)
+            response.InteractionToken = context.Token;
+            return response;
         }
 
 
