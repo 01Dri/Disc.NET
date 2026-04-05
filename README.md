@@ -66,6 +66,36 @@ var app = new AppBuilder()
 await app.RunAsync();
 ```
 
+### Exemplo com Message Builders
+
+```csharp
+using Disc.NET.Client.SDK.Messages.Components.Buttons;
+using Disc.NET.Commands;
+using Disc.NET.Commands.MessageBuilders;
+
+[SlashCommand("ping", InteractionType.ApplicationCommand, "Testa a latência")]
+public class PingCommand : ISlashCommand
+{
+    public async Task RunAsync(InteractionContext context, CancellationToken ct = default)
+    {
+        var message = new MessageBuilder()
+            .WithContent("Hello World!")
+            .WithEmbed(embed => embed
+                .SetTitle("Pong!")
+                .SetDescription("Exemplo de mensagem usando builders.")
+                .SetColor(0x5865F2)
+                .AddField("Status", "Online", true))
+            .WithActionRow(
+                new ActionRowBuilder()
+                    .AddButton("Atualizar", "ping_refresh", ButtonStyle.Primary)
+                    .AddLinkButton("Repositório", "https://github.com/dridev/Disc.NET"))
+            .Build();
+
+        await context.Response.SendMessageAsync(message, ct);
+    }
+}
+```
+
 ---
 
 ## 📦 Módulos Atuais
