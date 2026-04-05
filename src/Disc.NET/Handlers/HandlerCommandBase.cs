@@ -65,6 +65,13 @@ namespace Disc.NET.Handlers
             }
 
             context.ChannelId = contextJson.GetStringProperty("channel_id") ?? string.Empty;
+            if (!string.IsNullOrEmpty(context.ChannelId))
+            {
+                context.Channel = new Channel()
+                {
+                    Id = context.ChannelId
+                };
+            }
             context.Content = contextJson.GetStringProperty("content") ?? string.Empty;
             context.Id = contextJson.GetStringProperty("id") ?? string.Empty;
             context.ChannelType = contextJson.GetIntProperty("channel_type") ?? 0;
@@ -116,10 +123,29 @@ namespace Disc.NET.Handlers
         protected IResponse BuildResponse(ContextBase context)
         {
             var response = new Response();
-            response.ChannelId = context.Channel?.Id;
-            response.InteractionId = context.Id;
-            response.MessageId = context.Id; // adjust this to interaction context (reply message)
-            response.InteractionToken = context.Token;
+
+            switch (context)
+            {
+                case CommandContext commandContext:
+                    response.ChannelId = commandContext.ChannelId ?? commandContext.Channel?.Id;
+                    response.MessageId = commandContext.Id;
+                    break;
+
+                case InteractionContext interactionContext:
+                    response.ChannelId = interactionContext.Channel?.Id;
+                    response.InteractionId = interactionContext.Id;
+                    response.MessageId = interactionContext.Id;
+                    response.InteractionToken = interactionContext.Token;
+                    break;
+
+                default:
+                    response.ChannelId = context.Channel?.Id;
+                    response.InteractionId = context.Id;
+                    response.MessageId = context.Id;
+                    response.InteractionToken = context.Token;
+                    break;
+            }
+
             return response;
         }
 

@@ -66,7 +66,7 @@ public sealed class Client : ClientBase, IClient
         await PostAsync(teste, url, cancellation);
     }
 
-
+        
     private async Task SendMessageAsync(ApiMessage message, string channelId, CancellationToken cancellation = default)
     {
         var messageJson = _serializer.Serialize(message);

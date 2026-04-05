@@ -29,8 +29,13 @@ namespace Disc.NET.Commands.Responses
             await _client.SendMessageAsync(ChannelId, message.Build(), cancellation);
         }
 
-        public async Task ReplyAsync(Message message, CancellationToken cancellation = default)
+        public async Task ReplyAsync(Message message, bool isInteraction = false, CancellationToken cancellation = default)
         {
+            if (isInteraction)
+            {
+                await SendInteractionResponseAsync(message, false, cancellation);
+                return;
+            }
             message.Type = 19;
             message.MessageReference = new ApiMessage()
             {

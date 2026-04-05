@@ -27,7 +27,7 @@ namespace GenericBot
                     new ActionRowBuilder()
                         .AddButton("Clique aqui", "button_click", ButtonStyle.Primary, context, Test)
                 }
-            }, cancellationToken);
+            });
         }
 
         private async Task Test(CommandContext context)

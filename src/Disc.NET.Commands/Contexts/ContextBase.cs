@@ -7,8 +7,9 @@ namespace Disc.NET.Commands.Contexts
         public string Id { get; set; } = string.Empty;
         public string GuildId { get; set; } = string.Empty;
         public Channel? Channel { get; set; }
-
         public string Token { get; set; } = string.Empty;
+
+
 
     }
 }
